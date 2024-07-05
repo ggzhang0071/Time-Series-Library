@@ -1,36 +1,35 @@
+#!/bin/bash
+
+# 获取当前时间戳作为日志文件名
+timestamp=`date +%Y%m%d%H%M%S`
+logfile="Logs/${timestamp}.log"
+
+# 删除旧的日志文件
+rm Logs/*.log
+
+<<COMMENT
+bash ./scripts/classification/DLinear.sh   2>&1 | tee -a "${logfile}"
+bash ./scripts/classification/FiLM.sh    2>&1 | tee -a "${logfile}"
+bash ./scripts/classification/MICN.sh    2>&1 | tee -a "${logfile}"
+bash ./scripts/classification/Reformer.sh   2>&1 | tee -a "${logfile}"
+bash ./scripts/classification/iTransformer.sh   2>&1 | tee -a "${logfile}"
+bash ./scripts/classification/Crossformer.sh  2>&1 | tee -a "${logfile}"
+bash ./scripts/classification/FEDformer.sh   2>&1 | tee -a "${logfile}"
+bash ./scripts/classification/LightTS.sh    2>&1 | tee -a "${logfile}"
+bash ./scripts/classification/Pyraformer.sh   2>&1 | tee -a "${logfile}"
+bash ./scripts/classification/Transformer.sh   2>&1 | tee -a "${logfile}"
+
 # long-term forecast
-bash ./scripts/long_term_forecast/Exchange_script/Autoformer.sh
-bash ./scripts/long_term_forecast/Exchange_script/Crossformer.sh
-bash ./scripts/long_term_forecast/Exchange_script/FiLM.sh
-bash ./scripts/long_term_forecast/Exchange_script/Koopa.sh
-bash ./scripts/long_term_forecast/Exchange_script/MICN.sh
-bash ./scripts/long_term_forecast/Exchange_script/Mamba.sh
-bash ./scripts/long_term_forecast/Exchange_script/Nonstationary_Transformer.sh
-bash ./scripts/long_term_forecast/Exchange_script/PatchTST.sh
-bash ./scripts/long_term_forecast/Exchange_script/Pyraformer.sh
-bash ./scripts/long_term_forecast/Exchange_script/TimesNet.sh
-bash ./scripts/long_term_forecast/Exchange_script/Transformer.sh
+#bash ./scripts/short_term_forecast/iTransformer_M4.sh
+#bash ./scripts/long_term_forecast/Weather_script/iTransformer.sh
+bash ./scripts/long_term_forecast/Traffic_script/iTransformer.sh   2>&1 | tee -a "${logfile}"
+bash ./scripts/long_term_forecast/ETT_script/iTransformer_ETTh2.sh   2>&1 | tee -a "${logfile}"
+bash ./scripts/long_term_forecast/ECL_script/iTransformer.sh   2>&1 | tee -a "${logfile}"
+bash ./scripts/anomaly_detection/MSL/iTransformer.sh   2>&1 | tee -a "${logfile}"
+COMMENT
 
+bash scripts/beigang_script/optuna_opt/iTransformer.sh   2>&1 | tee -a "${logfile}"
 
-#  short-term forecast
-bash ./scripts/short_term_forecast/Autoformer_M4.sh
-bash ./scripts/short_term_forecast/Crossformer_M4.sh
-bash ./scripts/short_term_forecast/DLinear_M4.sh
-bash ./scripts/short_term_forecast/ETSformer_M4.sh
-bash ./scripts/short_term_forecast/FEDformer_M4.sh
-bash ./scripts/short_term_forecast/FiLM_M4.sh
-bash ./scripts/short_term_forecast/Informer_M4.sh
-bash ./scripts/short_term_forecast/LightTS_M4.sh
-bash ./scripts/short_term_forecast/MICN_M4.sh
-bash ./scripts/short_term_forecast/Mamba_M4.sh
-bash ./scripts/short_term_forecast/Nonstationary_Transformer_M4.sh
-bash ./scripts/short_term_forecast/Pyraformer_M4.sh
-bash ./scripts/short_term_forecast/Reformer_M4.sh
-bash ./scripts/short_term_forecast/TSMixer_M4.sh
-bash ./scripts/short_term_forecast/TimeMixer_M4.sh
-bash ./scripts/short_term_forecast/TimesNet_M4.sh
-bash ./scripts/short_term_forecast/Transformer_M4.sh
-bash ./scripts/short_term_forecast/iTransformer_M4.sh
 
 
 

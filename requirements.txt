@@ -12,4 +12,6 @@ sympy
 tqdm
 dataclasses
 mamba-ssm==2.0.3
+optuna
+
 

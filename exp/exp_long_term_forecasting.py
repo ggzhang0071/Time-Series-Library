@@ -11,8 +11,19 @@ import warnings
 import numpy as np
 from utils.dtw_metric import dtw,accelerated_dtw
 from utils.augmentation import run_augmentation,run_augmentation_single
+from utils.losses import mape_loss, mase_loss, smape_loss
 
 warnings.filterwarnings('ignore')
+
+def _select_criterion(self, loss_name='MSE'):
+    if loss_name == 'MSE':
+        return nn.MSELoss()
+    elif loss_name == 'MAPE':
+        return mape_loss()
+    elif loss_name == 'MASE':
+        return mase_loss()
+    elif loss_name == 'SMAPE':
+        return smape_loss()
 
 
 class Exp_Long_Term_Forecast(Exp_Basic):
@@ -34,9 +45,10 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         model_optim = optim.Adam(self.model.parameters(), lr=self.args.learning_rate)
         return model_optim
 
-    def _select_criterion(self):
-        criterion = nn.MSELoss()
-        return criterion
+
+    
+
+
 
     def vali(self, vali_data, vali_loader, criterion):
         total_loss = []
@@ -93,7 +105,9 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         early_stopping = EarlyStopping(patience=self.args.patience, verbose=True)
 
         model_optim = self._select_optimizer()
-        criterion = self._select_criterion()
+        #criterion = self._select_criterion()
+        criterion = _select_criterion(self.args.loss)
+
 
         if self.args.use_amp:
             scaler = torch.cuda.amp.GradScaler()
@@ -174,7 +188,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         best_model_path = path + '/' + 'checkpoint.pth'
         self.model.load_state_dict(torch.load(best_model_path))
 
-        return self.model
+        return self.model, train_loss, vali_loss  
 
     def test(self, setting, test=0):
         test_data, test_loader = self._get_data(flag='test')
@@ -235,11 +249,11 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 if i % 20 == 0:
                     input = batch_x.detach().cpu().numpy()
                     if test_data.scale and self.args.inverse:
-                        shape = input.shape
+                        shape = input.shape 
                         input = test_data.inverse_transform(input.squeeze(0)).reshape(shape)
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-                    visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
+                    visual(gt, self.args.pred_len, pd, os.path.join(folder_path, str(i) + '.pdf'))
 
         preds = np.array(preds)
         trues = np.array(trues)
@@ -268,7 +282,6 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         else:
             dtw = -999
             
-
         mae, mse, rmse, mape, mspe = metric(preds, trues)
         print('mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
         f = open("result_long_term_forecast.txt", 'a')
@@ -282,4 +295,4 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         np.save(folder_path + 'pred.npy', preds)
         np.save(folder_path + 'true.npy', trues)
 
-        return
+        return   
