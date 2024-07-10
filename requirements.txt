@@ -11,7 +11,11 @@ sympy
 #torch
 tqdm
 dataclasses
-mamba-ssm==2.0.3
 optuna
+tensorboard  
+mamba-ssm==2.0.3
+
+
+
 
 

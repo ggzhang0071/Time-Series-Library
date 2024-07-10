@@ -90,7 +90,6 @@ def visual(true, pred_len, preds=None, name='./pic/test.pdf'):
     print(f"The difference between the true and the preds is {true[-pred_len:]-preds[-pred_len:]}")
     plt.savefig(name, bbox_inches='tight')
 
-
 def adjustment(gt, pred):
     anomaly_state = False
     for i in range(len(gt)):

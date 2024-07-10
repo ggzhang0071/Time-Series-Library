@@ -12,13 +12,13 @@ import numpy as np
 import optuna 
 import time
 import matplotlib.pyplot as plt 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
 def update_args_(args, params):
   """updates args in-place"""
   dargs = vars(args)
   dargs.update(params)
 
-def create_main(param_config):
+def create_main(param_config=None):
     def main(trial):
         fix_seed = 2021
         random.seed(fix_seed)
@@ -141,7 +141,7 @@ def create_main(param_config):
         parser.add_argument('--num_trial', type=int, default=2, help="optuna trial numbers")
 
         args = parser.parse_args()
-        if trial is not  None :
+        if trial is not  None and param_config!=None:
             for param_name, attributes in param_config.items():
                 param_type = attributes['type']
                 if param_type == 'float':
@@ -160,8 +160,14 @@ def create_main(param_config):
             args.device_ids = [int(id_) for id_ in device_ids]
             args.gpu = args.device_ids[0]  
         else:
-            gpu_id = trial.suggest_categorical('gpu_id', [0, 1, 2, 3])  # 假设有 4 个 GPU
-            device = torch.device(f'cuda:{gpu_id}' if torch.cuda.is_available() else 'cpu')
+            pass
+            #args.device_ids= [args.devices]
+            #args.gpu =args.devices
+            #args.gpu  = trial.suggest_categorical('gpu_id', [0, 1, 2, 3])  # 假设有 4 个 GPU
+
+        """if self.args.use_multi_gpu and self.args.use_gpu:
+            model = nn.DataParallel(model, device_ids=self.args.device_ids)
+        return model"""
 
 
         print('Args in experiment:')
@@ -252,7 +258,7 @@ def create_main(param_config):
         plt.legend()
         plt.title('Loss Curves')
         ints=random.randint(1,1000)
-        plt.savefig(f"results/train_loss_and_vali_loss_{args.model_name}_{ii}.png")
+        plt.savefig(f"results/train_loss_and_vali_loss_{args.model}_{ii}.png")
         return vali_loss
     return main
 if __name__=="__main__":
@@ -263,11 +269,13 @@ if __name__=="__main__":
     'e_layers':{'type': 'int', 'low': 2, 'high': 6}, 
     'learning_rate': {'type': 'float', 'low': 1e-3, 'high': 0.01},
     'batch_size': {'type': 'int', 'low': 64, 'high': 128}
+    #'devices': {'type': 'int', 'low': 1, 'high': 3} 
     } 
     start_time=time.time()
     study = optuna.create_study(direction='minimize')
     objective = create_main(param_config)
-    study.optimize(objective, n_trials=100,n_jobs=4)
+    #study.optimize(objective, n_trials=100,n_jobs=3)
+    study.optimize(objective, n_trials=100)
     end_time=time.time()
     optuna_time=end_time-start_time
 

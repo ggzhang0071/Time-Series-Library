@@ -12,6 +12,10 @@ import numpy as np
 from utils.dtw_metric import dtw,accelerated_dtw
 from utils.augmentation import run_augmentation,run_augmentation_single
 from utils.losses import mape_loss, mase_loss, smape_loss
+from torch.utils.tensorboard import SummaryWriter
+
+writer = SummaryWriter(log_dir='runs/long_term_forecasting')
+
 
 warnings.filterwarnings('ignore')
 
@@ -44,11 +48,6 @@ class Exp_Long_Term_Forecast(Exp_Basic):
     def _select_optimizer(self):
         model_optim = optim.Adam(self.model.parameters(), lr=self.args.learning_rate)
         return model_optim
-
-
-    
-
-
 
     def vali(self, vali_data, vali_loader, criterion):
         total_loss = []
@@ -178,7 +177,17 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
             print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
                 epoch + 1, train_steps, train_loss, vali_loss, test_loss))
-            early_stopping(vali_loss, self.model, path)
+            
+            writer.add_scalar('Loss/train', train_loss, epoch)
+            writer.add_scalar('Loss/vlli', vali_loss, epoch)
+            writer.add_scalar('Loss/test', test_loss, epoch)
+            for name, param in self.model.named_parameters():
+                if param.grad is not None:
+                    writer.add_histogram(name, param, epoch)
+                    writer.add_histogram(f'{name}.grad', param.grad, epoch)
+
+
+            early_stopping(train_loss, self.model, path)
             if early_stopping.early_stop:
                 print("Early stopping")
                 break
@@ -254,45 +263,47 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
                     visual(gt, self.args.pred_len, pd, os.path.join(folder_path, str(i) + '.pdf'))
-
-        preds = np.array(preds)
-        trues = np.array(trues)
-        print('test shape:', preds.shape, trues.shape)
-        preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
-        trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
-        print('test shape:', preds.shape, trues.shape)
-
-        # result save
-        folder_path = './results/' + setting + '/'
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-        
-        # dtw calculation
-        if self.args.use_dtw:
-            dtw_list = []
-            manhattan_distance = lambda x, y: np.abs(x - y)
-            for i in range(preds.shape[0]):
-                x = preds[i].reshape(-1,1)
-                y = trues[i].reshape(-1,1)
-                if i % 100 == 0:
-                    print("calculating dtw iter:", i)
-                d, _, _, _ = accelerated_dtw(x, y, dist=manhattan_distance)
-                dtw_list.append(d)
-            dtw = np.array(dtw_list).mean()
-        else:
-            dtw = -999
+        if not preds:
+            print("preds is an empty list, the trial is failed")  
             
-        mae, mse, rmse, mape, mspe = metric(preds, trues)
-        print('mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
-        f = open("result_long_term_forecast.txt", 'a')
-        f.write(setting + "  \n")
-        f.write('mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
-        f.write('\n')
-        f.write('\n')
-        f.close()
+        else:
+            preds = np.array(preds)
+            trues = np.array(trues)
+            print('test shape:', preds.shape, trues.shape)
+            preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
+            trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
+            print('test shape:', preds.shape, trues.shape)
 
-        np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
-        np.save(folder_path + 'pred.npy', preds)
-        np.save(folder_path + 'true.npy', trues)
+            # result save
+            folder_path = './results/' + setting + '/'
+            if not os.path.exists(folder_path):
+                os.makedirs(folder_path)
+        
+            # dtw calculation
+            if self.args.use_dtw:
+                dtw_list = []
+                manhattan_distance = lambda x, y: np.abs(x - y)
+                for i in range(preds.shape[0]):
+                    x = preds[i].reshape(-1,1)
+                    y = trues[i].reshape(-1,1)
+                    if i % 100 == 0:
+                        print("calculating dtw iter:", i)
+                    d, _, _, _ = accelerated_dtw(x, y, dist=manhattan_distance)
+                    dtw_list.append(d)
+                dtw = np.array(dtw_list).mean()
+            else:
+                dtw = -999
+                
+            mae, mse, rmse, mape, mspe = metric(preds, trues)
+            print('mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
+            f = open("result_long_term_forecast.txt", 'a')
+            f.write(setting + "  \n")
+            f.write('mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
+            f.write('\n')
+            f.write('\n')
+            f.close()
 
+            np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
+            np.save(folder_path + 'pred.npy', preds)
+            np.save(folder_path + 'true.npy', trues)
         return   

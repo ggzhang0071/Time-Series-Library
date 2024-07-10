@@ -30,6 +30,10 @@ COMMENT
 
 bash scripts/beigang_script/optuna_opt/iTransformer.sh   2>&1 | tee -a "${logfile}"
 
+#bash scripts/beigang_script/optuna_opt/TimesNet.sh    2>&1 | tee -a "${logfile}"
+
+
+
 
 
 
