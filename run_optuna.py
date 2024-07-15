@@ -11,8 +11,11 @@ import random
 import numpy as np
 import optuna 
 import time
-import matplotlib.pyplot as plt 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3"
+import logging
+logging.basicConfig(level=logging.INFO)
+
+
+
 def update_args_(args, params):
   """updates args in-place"""
   dargs = vars(args)
@@ -185,9 +188,7 @@ def create_main(param_config=None):
             Exp = Exp_Classification
         else:
             Exp = Exp_Long_Term_Forecast
-        train_losses = []
-        val_losses = []
-        test_losses = []
+      
 
         if args.is_training:
             for ii in range(args.itr):
@@ -215,9 +216,8 @@ def create_main(param_config=None):
                     args.des, ii)
 
                 print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-                model, train_loss,vali_loss=exp.train(setting)
-                train_losses.append(train_loss)
-                val_losses.append(vali_loss)
+                model, vali_loss =exp.train(setting)
+                
 
 
                 print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
@@ -250,19 +250,10 @@ def create_main(param_config=None):
             print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             exp.test(setting, test=1)
             torch.cuda.empty_cache()
-        plt.figure()
-        plt.plot(range(len(train_losses)), train_losses, label='Train Loss')
-        plt.plot(range(len(val_losses)), val_losses, label='Validation Loss')
-        plt.xlabel('Epoch')
-        plt.ylabel('Loss')
-        plt.legend()
-        plt.title('Loss Curves')
-        ints=random.randint(1,1000)
-        plt.savefig(f"results/train_loss_and_vali_loss_{args.model}_{ii}.png")
         return vali_loss
     return main
 if __name__=="__main__":
-    param_config = {  
+    """param_config = {  
     #'seq_len': {'type': 'int', 'low': 32, 'high': 100},
     #'label_len': {'type': 'int', 'low': 48, 'high': 128},
     'd_model':{'type': 'int', 'low': 12, 'high': 100},
@@ -270,7 +261,8 @@ if __name__=="__main__":
     'learning_rate': {'type': 'float', 'low': 1e-3, 'high': 0.01},
     'batch_size': {'type': 'int', 'low': 64, 'high': 128}
     #'devices': {'type': 'int', 'low': 1, 'high': 3} 
-    } 
+    } """
+    param_config={}
     start_time=time.time()
     study = optuna.create_study(direction='minimize')
     objective = create_main(param_config)
@@ -281,5 +273,12 @@ if __name__=="__main__":
 
     print("Optuna 最佳超参数: ", study.best_params)
     print("Optuna 运行时间: ", optuna_time, "秒")
-    #main()  # uncomment to run normaly
+
+    """if len(study.trials) > 0 and any(trial.state == optuna.trial.TrialState.COMPLETE for trial in study.trials):
+        print("Optuna 最佳超参数: ", study.best_params)
+        print("Optuna 运行时间: ", optuna_time, "秒")
+    else:
+        print("No completed trials yet.")""" 
+
+ 
 

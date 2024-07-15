@@ -244,17 +244,12 @@ class Dataset_Custom(Dataset):
             for column in df_raw.columns:
                 if column != 'date':  # 排除不需要插值的时间戳列
                     df_raw[[column]] = imputer.fit_transform(df_raw[[column]])
-        diff= False
-        if diff==True:
-            df_raw['date'] = pd.to_datetime(df_raw['date'])  
-            df_raw.set_index('date', inplace=True) 
-            df_raw= df_raw.diff()
-            df_raw['date'] = df_raw.index  
-            df_raw.reset_index(drop=True, inplace=True)
+        diff=True
+        if diff:  
+            df_raw[self.args.target]= df_raw[self.args.target].diff()
+            df_raw = df_raw.drop(df_raw.index[0])
 
-        '''
-        df_raw.columns: ['date', ...(other features), target feature]
-        '''
+
         cols = list(df_raw.columns)
         cols.remove(self.target)
         cols.remove('date')

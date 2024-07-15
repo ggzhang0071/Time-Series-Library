@@ -1,4 +1,4 @@
-export CUDA_VISIBLE_DEVICES=3
+export CUDA_VISIBLE_DEVICES=1
 
 
 root_path='/git/datasets/beigang_data/'
@@ -25,7 +25,7 @@ else
 fi
 
 
-python run.py \
+python  -m pdb  run.py \
   --task_name classification \
   --is_training 1 \
   --root_path $root_path \
@@ -44,6 +44,7 @@ python run.py \
   --train_epochs 30 \
   --patience 10
 
+<< COMMENT
 python -u run.py \
   --task_name classification \
   --is_training 1 \
@@ -190,3 +191,4 @@ python -u run.py \
   --learning_rate 0.001 \
   --train_epochs 30 \
   --patience 10
+COMMENT

@@ -11,10 +11,9 @@ import warnings
 import numpy as np
 from utils.dtw_metric import dtw,accelerated_dtw
 from utils.augmentation import run_augmentation,run_augmentation_single
-from utils.losses import mape_loss, mase_loss, smape_loss
+from utils.losses import mape_loss,mape1_loss,mase_loss, smape_loss
 from torch.utils.tensorboard import SummaryWriter
-
-writer = SummaryWriter(log_dir='runs/long_term_forecasting')
+writer = SummaryWriter(log_dir=f'runs/long_term_forecasting_pred_len_6')
 
 
 warnings.filterwarnings('ignore')
@@ -24,6 +23,8 @@ def _select_criterion(self, loss_name='MSE'):
         return nn.MSELoss()
     elif loss_name == 'MAPE':
         return mape_loss()
+    elif loss_name == 'MAPE1':
+        return mape1_loss()
     elif loss_name == 'MASE':
         return mase_loss()
     elif loss_name == 'SMAPE':
@@ -33,6 +34,7 @@ def _select_criterion(self, loss_name='MSE'):
 class Exp_Long_Term_Forecast(Exp_Basic):
     def __init__(self, args):
         super(Exp_Long_Term_Forecast, self).__init__(args)
+
 
     def _build_model(self):
         model = self.model_dict[self.args.model].Model(self.args).float()
@@ -94,6 +96,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         vali_data, vali_loader = self._get_data(flag='val')
         test_data, test_loader = self._get_data(flag='test')
 
+
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
             os.makedirs(path)
@@ -103,7 +106,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         train_steps = len(train_loader)
         early_stopping = EarlyStopping(patience=self.args.patience, verbose=True)
 
-        model_optim = self._select_optimizer()
+        model_optim = self._select_optimizer() 
         #criterion = self._select_criterion()
         criterion = _select_criterion(self.args.loss)
 
@@ -153,6 +156,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                     loss = criterion(outputs, batch_y)
                     train_loss.append(loss.item())
+                
 
                 if (i + 1) % 100 == 0:
                     print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
@@ -169,6 +173,11 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 else:
                     loss.backward()
                     model_optim.step()
+                    for name, param in self.model.named_parameters():
+                    #writer.add_histogram(name, param, epoch)
+                        if param.grad is not None:
+                            writer.add_histogram(f'{name}.grad', param.grad, epoch)
+
 
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
@@ -179,13 +188,9 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 epoch + 1, train_steps, train_loss, vali_loss, test_loss))
             
             writer.add_scalar('Loss/train', train_loss, epoch)
-            writer.add_scalar('Loss/vlli', vali_loss, epoch)
+            writer.add_scalar('Loss/vali', vali_loss, epoch)
             writer.add_scalar('Loss/test', test_loss, epoch)
-            for name, param in self.model.named_parameters():
-                if param.grad is not None:
-                    writer.add_histogram(name, param, epoch)
-                    writer.add_histogram(f'{name}.grad', param.grad, epoch)
-
+        
 
             early_stopping(train_loss, self.model, path)
             if early_stopping.early_stop:
@@ -196,8 +201,9 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
         best_model_path = path + '/' + 'checkpoint.pth'
         self.model.load_state_dict(torch.load(best_model_path))
+        writer.close()
 
-        return self.model, train_loss, vali_loss  
+        return self.model, vali_loss
 
     def test(self, setting, test=0):
         test_data, test_loader = self._get_data(flag='test')
@@ -306,4 +312,4 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
             np.save(folder_path + 'pred.npy', preds)
             np.save(folder_path + 'true.npy', trues)
-        return   
+        return  

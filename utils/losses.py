@@ -32,6 +32,19 @@ def divide_no_nan(a, b):
     return result
 
 
+class mape1_loss(nn.Module):
+    def __init__(self):
+        super(mape1_loss, self).__init__()  # 修改这里，使用正确的类名
+
+    def forward(self, forecast: t.Tensor, target: t.Tensor) -> t.float:  # 添加 self 参数
+        # 确保实际值中没有零值，避免除零错误
+        # 使用 clamp 方法将所有实际值至少设为非常小的正数
+        epsilon = 1e-8  # 防止除零
+        actual_safe = t.clamp(target, min=epsilon)
+        loss = t.abs((actual_safe - forecast) / actual_safe)
+        #print(f"loss is {loss}")
+        return t.mean(loss) * 100  # 结果乘以 100 转换为百分比
+
 class mape_loss(nn.Module):
     def __init__(self):
         super(mape_loss, self).__init__()

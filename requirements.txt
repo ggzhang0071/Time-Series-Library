@@ -14,6 +14,10 @@ dataclasses
 optuna
 tensorboard  
 mamba-ssm==2.0.3
+# for jupyterlab 
+notebook
+jupyterlab
+
 
 
 

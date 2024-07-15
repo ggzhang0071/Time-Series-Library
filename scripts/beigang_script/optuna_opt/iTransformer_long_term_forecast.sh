@@ -6,29 +6,18 @@ root_path='/git/datasets/beigang_data/'
 data_path="runmin_an_factors_4500K1.0S.csv"
 #data_path="early_variables_for_mine_price.csv"
 
-# 检查 data_path 并设置模型参数
-if [ "$data_path" == "all_variables_for_mine_price_4500K1.0S.csv" ]; then
-    enc_in_choice=86
-    target="4500K1.0S"
-elif [ "$data_path" == "runmin_an_factors_4500K1.0S.csv" ]; then
-    enc_in_choice=78
-    target="4500K1.0S"
-elif [ "$data_path" == "runmin_an_factors_5000K0.8S.csv" ]; then
-    enc_in_choice=78
-    target="5000K0.8S"
-elif [ "$data_path" == "runmin_an_factors_5500K0.8S.csv" ]; then
-    enc_in_choice=78
-    target="5500K0.8S"
-else  
-    echo "未识别的 data_path: $data_path"
-    exit 1
-fi
+target="4500K1.0S" 
+enc_in_choice=78
 
-d_model=64
+data_path="runmin_an_factors_${target}.csv"
+
+
+d_model=14
 model_name=iTransformer  
 
-# run_optuna.py  run.py
- python -m pdb    /git/Time-Series-Library/run_optuna.py \
+
+# run_optuna.py  run.py  
+nohup python /git/Time-Series-Library/run_optuna.py \
   --task_name long_term_forecast \
   --is_training 1 \
   --root_path $root_path \
@@ -39,24 +28,25 @@ model_name=iTransformer
   --features M \
   --seq_len 765 \
   --label_len 60 \
-  --pred_len 5 \
-  --e_layers 4 \
+  --pred_len 6 \
+  --e_layers 5 \
   --d_layers 4 \
   --factor 3 \
   --enc_in $enc_in_choice \
   --dec_in $enc_in_choice \
   --c_out 1 \
   --des 'Exp' \
+  --train_epochs 10 \
   --dropout 0.1 \
   --d_model $d_model \
   --d_ff $((d_model*4)) \
   --p_hidden_dims  16 16 \
-  --batch_size 512 \
-  --train_epochs 30 \
-  --learning_rate 0.01 \
-  --itr 50   \
+  --batch_size 116 \
+  --learning_rate  0.004812286091285173 \
+  --itr 1   \
+  --patience 10 \
   --target $target \
-  --loss 'SMAPE'
+  --loss 'MAPE1'
 
 <<COMMENT
 python   -m pdb  /git/Time-Series-Library/run_optuna.py \
