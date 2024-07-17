@@ -12,6 +12,7 @@ import numpy as np
 import optuna 
 import time
 import logging
+import json
 logging.basicConfig(level=logging.INFO)
 
 
@@ -21,7 +22,7 @@ def update_args_(args, params):
   dargs = vars(args)
   dargs.update(params)
 
-def create_main(param_config=None):
+def main():
     def main(trial):
         fix_seed = 2021
         random.seed(fix_seed)
@@ -106,6 +107,8 @@ def create_main(param_config=None):
         parser.add_argument('--loss', type=str, default='MSE', help='loss function')
         parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
         parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
+        parser.add_argument('--target_diff', action='store_true', help='use automatic mixed precision training', default=False)
+
 
         # GPU
         parser.add_argument('--use_gpu', type=bool, default=True, help='use gpu')
@@ -141,9 +144,16 @@ def create_main(param_config=None):
         parser.add_argument('--discdtw', default=False, action="store_true", help="Discrimitive DTW warp preset augmentation")
         parser.add_argument('--discsdtw', default=False, action="store_true", help="Discrimitive shapeDTW warp preset augmentation")
         parser.add_argument('--extra_tag', type=str, default="", help="Anything extra")
+        parser.add_argument('--config', type=str, required=False, default="./scripts/beigang_script/optuna_opt/param_config_long_term_forecast.json", help='Path to config file')
+
         parser.add_argument('--num_trial', type=int, default=2, help="optuna trial numbers")
 
         args = parser.parse_args()
+
+        with open(args.config, 'r') as fid:
+            param_config=json.load(fid)
+
+
         if trial is not  None and param_config!=None:
             for param_name, attributes in param_config.items():
                 param_type = attributes['type']
@@ -253,32 +263,17 @@ def create_main(param_config=None):
         return vali_loss
     return main
 if __name__=="__main__":
-    """param_config = {  
-    #'seq_len': {'type': 'int', 'low': 32, 'high': 100},
-    #'label_len': {'type': 'int', 'low': 48, 'high': 128},
-    'd_model':{'type': 'int', 'low': 12, 'high': 100},
-    'e_layers':{'type': 'int', 'low': 2, 'high': 6}, 
-    'learning_rate': {'type': 'float', 'low': 1e-3, 'high': 0.01},
-    'batch_size': {'type': 'int', 'low': 64, 'high': 128}
-    #'devices': {'type': 'int', 'low': 1, 'high': 3} 
-    } """
-    param_config={}
     start_time=time.time()
     study = optuna.create_study(direction='minimize')
-    objective = create_main(param_config)
-    #study.optimize(objective, n_trials=100,n_jobs=3)
-    study.optimize(objective, n_trials=100)
+    objective = main()
+    study.optimize(objective, n_trials=10)
     end_time=time.time()
-    optuna_time=end_time-start_time
+    optuna_time=end_time-start_time  
 
     print("Optuna 最佳超参数: ", study.best_params)
     print("Optuna 运行时间: ", optuna_time, "秒")
 
-    """if len(study.trials) > 0 and any(trial.state == optuna.trial.TrialState.COMPLETE for trial in study.trials):
-        print("Optuna 最佳超参数: ", study.best_params)
-        print("Optuna 运行时间: ", optuna_time, "秒")
-    else:
-        print("No completed trials yet.")""" 
+
 
  
 

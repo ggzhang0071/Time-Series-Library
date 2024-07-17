@@ -13,7 +13,7 @@ from utils.dtw_metric import dtw,accelerated_dtw
 from utils.augmentation import run_augmentation,run_augmentation_single
 from utils.losses import mape_loss,mape1_loss,mase_loss, smape_loss
 from torch.utils.tensorboard import SummaryWriter
-writer = SummaryWriter(log_dir=f'runs/long_term_forecasting_pred_len_6')
+writer = SummaryWriter(log_dir=f'runs/long_term_forecasting_pred_len_7')
 
 
 warnings.filterwarnings('ignore')
@@ -184,7 +184,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             vali_loss = self.vali(vali_data, vali_loader, criterion)
             test_loss = self.vali(test_data, test_loader, criterion)
 
-            print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
+            print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f}, Vali Loss: {3:.7f}, Test Loss: {4:.7f}".format(
                 epoch + 1, train_steps, train_loss, vali_loss, test_loss))
             
             writer.add_scalar('Loss/train', train_loss, epoch)
@@ -250,9 +250,33 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 batch_y = batch_y.detach().cpu().numpy()
                 if test_data.scale and self.args.inverse:
                     shape = outputs.shape
-                    outputs = test_data.inverse_transform(outputs.squeeze(0)).reshape(shape)
-                    batch_y = test_data.inverse_transform(batch_y.squeeze(0)).reshape(shape)
-        
+                    # 预处理outputs，使其适合inverse_transform方法
+                    if outputs.ndim == 3 and outputs.shape[0] == 1:
+                        outputs = outputs.squeeze(0)  # 压缩第0维，如果是(batch_size, pred_len, features)且batch_size为1
+                    # 应用inverse_transform并重新塑形
+                    if outputs.ndim <= 2:
+                        outputs = test_data.inverse_transform(outputs).reshape(shape)
+                    else:
+                        # 如果outputs是三维且无法压缩为二维，逐个处理每个样本
+                        processed_outputs = []
+                        for i in range(outputs.shape[0]):
+                            processed_sample = test_data.inverse_transform(outputs[i]).reshape(outputs[i].shape)
+                            processed_outputs.append(processed_sample)
+                        outputs = np.array(processed_outputs).reshape(shape)
+                    
+                    # 应用相同的逻辑于batch_y
+                    if batch_y.ndim == 3 and batch_y.shape[0] == 1:
+                        batch_y = batch_y.squeeze(0)
+                    if batch_y.ndim <= 2:
+                        batch_y = test_data.inverse_transform(batch_y).reshape(shape)
+                    else:
+                        processed_batch_y = []
+                        for i in range(batch_y.shape[0]):
+                            processed_sample = test_data.inverse_transform(batch_y[i]).reshape(batch_y[i].shape)
+                            processed_batch_y.append(processed_sample)
+                        batch_y = np.array(processed_batch_y).reshape(shape)
+
+
                 outputs = outputs[:, :, f_dim:]
                 batch_y = batch_y[:, :, f_dim:]
 
@@ -269,8 +293,8 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
                     visual(gt, self.args.pred_len, pd, os.path.join(folder_path, str(i) + '.pdf'))
-        if not preds:
-            print("preds is an empty list, the trial is failed")  
+        if not preds:  
+            print("Preds is an empty list, the trial is failed")  
             
         else:
             preds = np.array(preds)

@@ -8,17 +8,19 @@ data_path="runmin_an_factors_4500K1.0S.csv"
 
 target="4500K1.0S" 
 enc_in_choice=78
-
 data_path="runmin_an_factors_${target}.csv"
 
-
 d_model=14
-model_name=iTransformer  
+model_name=iTransformer 
+
+target_name="long_term_forecast"
+
+config_path="./scripts/beigang_script/optuna_opt/param_config_${target_name}.json"
 
 
 # run_optuna.py  run.py  
-nohup python /git/Time-Series-Library/run_optuna.py \
-  --task_name long_term_forecast \
+python  -m pdb  /git/Time-Series-Library/run_optuna.py \
+  --task_name  $target_name \
   --is_training 1 \
   --root_path $root_path \
   --data_path $data_path \
@@ -41,15 +43,17 @@ nohup python /git/Time-Series-Library/run_optuna.py \
   --d_model $d_model \
   --d_ff $((d_model*4)) \
   --p_hidden_dims  16 16 \
-  --batch_size 116 \
-  --learning_rate  0.004812286091285173 \
+  --batch_size 128 \
+  --learning_rate 0.01 \
   --itr 1   \
   --patience 10 \
   --target $target \
-  --loss 'MAPE1'
+  --inverse \
+  --config ${config_path} \
+  --loss 'MAPE1'  
 
 <<COMMENT
-python   -m pdb  /git/Time-Series-Library/run_optuna.py \
+python   /git/Time-Series-Library/run_optuna.py \
   --task_name short_term_forecast \
   --is_training 1 \
   --root_path $root_path \

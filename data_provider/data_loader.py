@@ -244,8 +244,7 @@ class Dataset_Custom(Dataset):
             for column in df_raw.columns:
                 if column != 'date':  # 排除不需要插值的时间戳列
                     df_raw[[column]] = imputer.fit_transform(df_raw[[column]])
-        diff=True
-        if diff:  
+        if self.args.target_diff:  
             df_raw[self.args.target]= df_raw[self.args.target].diff()
             df_raw = df_raw.drop(df_raw.index[0])
 

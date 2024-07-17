@@ -83,11 +83,10 @@ def visual(true, pred_len, preds=None, name='./pic/test.pdf'):
     Results visualization
     """
     plt.figure()
-    plt.plot(true[-pred_len:], label='GroundTruth', linewidth=2)
+    plt.plot(true[-pred_len*2:], label='GroundTruth', linewidth=2)
     if preds is not None:
-        plt.plot(preds[-pred_len:], label='Prediction', linewidth=2)
+        plt.plot(preds[-pred_len*2:], label='Prediction', linewidth=2)
     plt.legend()
-    print(f"The difference between the true and the preds is {true[-pred_len:]-preds[-pred_len:]}")
     plt.savefig(name, bbox_inches='tight')
 
 def adjustment(gt, pred):
