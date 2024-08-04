@@ -52,6 +52,10 @@ def data_provider(args, flag):
             flag=flag,
         )
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> tmp
         data_loader = DataLoader(
             data_set,
             batch_size=batch_size,

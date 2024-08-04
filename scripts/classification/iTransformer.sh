@@ -21,6 +21,7 @@ python -u run.py \
   --patience 10 \
   --enc_in 3
 
+<<COMMENT
 python -u run.py \
   --task_name classification \
   --is_training 1 \
@@ -191,3 +192,4 @@ python -u run.py \
   --train_epochs 100 \
   --patience 10 \
   --enc_in 3
+COMMENT

@@ -2,7 +2,7 @@ export CUDA_VISIBLE_DEVICES=5
 
 model_name=DLinear
 
-python -u run.py \
+python -m pdb   run.py \
   --task_name classification \
   --is_training 1 \
   --root_path ./dataset/EthanolConcentration/ \

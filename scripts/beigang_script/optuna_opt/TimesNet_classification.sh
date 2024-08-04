@@ -1,30 +1,33 @@
-export CUDA_VISIBLE_DEVICES=1
-
+export CUDA_VISIBLE_DEVICES=3
 
 root_path='/git/datasets/beigang_data/'
 #data_path='all_variables_for_mine_price_4500K1.0S.csv'
 data_path="runmin_an_factors_4500K1.0S.csv"
 #data_path="early_variables_for_mine_price.csv"
 
-
 target="4500K1.0S" 
 enc_in_choice=78
-
 data_path="runmin_an_factors_${target}.csv"
 
+d_model=14
+model_name=iTransformer 
+
+task_name="long_term_forecast"
+output_task="classification"
+
+config_path="/git/Time-Series-Library/scripts/beigang_script/optuna_opt/param_config_${task_name}.json"
+config_path="/git/Time-Series-Library/scripts/beigang_script/optuna_opt/param_config_long_term_forecast.json"
 
 
-
-python  run.py \
+python -m pdb  run_optuna.py \
   --task_name classification \
   --is_training 1 \
-  --root_path $root_path \
-  --data_path $data_path \
-  --model_id beigang \
+  --root_path ./dataset/EthanolConcentration/ \
+  --model_id EthanolConcentration \
   --model TimesNet \
   --data UEA \
   --e_layers 3 \
-  --batch_size 128 \
+  --batch_size 16 \
   --d_model 32 \
   --d_ff 32 \
   --top_k 3 \
@@ -34,7 +37,7 @@ python  run.py \
   --train_epochs 30 \
   --patience 10
 
-<< COMMENT
+<<COMMENT
 python -u run.py \
   --task_name classification \
   --is_training 1 \

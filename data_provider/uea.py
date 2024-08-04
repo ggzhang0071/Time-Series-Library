@@ -4,6 +4,7 @@ import pandas as pd
 import torch
 
 
+
 def collate_fn(data, max_len=None):
     """Build mini-batch tensors from a list of (X, mask) tuples. Mask input. Create
     Args:
