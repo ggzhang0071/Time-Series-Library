@@ -17,6 +17,7 @@ from sklearn.impute import KNNImputer
 warnings.filterwarnings('ignore')
 
 
+
 class Dataset_ETT_hour(Dataset):
     def __init__(self, args, root_path, flag='train', size=None,
                  features='S', data_path='ETTh1.csv',
@@ -205,6 +206,8 @@ class Dataset_ETT_minute(Dataset):
         return self.scaler.inverse_transform(data)
 
 
+
+
 class Dataset_Custom(Dataset):
     def __init__(self, args, root_path, flag='train', size=None,
                  features='S', data_path='ETTh1.csv',
@@ -239,22 +242,16 @@ class Dataset_Custom(Dataset):
         self.scaler = StandardScaler()
         df_raw = pd.read_csv(os.path.join(self.root_path,
                                           self.data_path))
-        if df_raw.isnull().values.any():
-            imputer = KNNImputer(n_neighbors=10)
-            for column in df_raw.columns:
-                if column != 'date':  # 排除不需要插值的时间戳列
-                    df_raw[[column]] = imputer.fit_transform(df_raw[[column]])
-        if self.args.target_diff:  
-            df_raw[self.args.target]= df_raw[self.args.target].diff()
-            df_raw = df_raw.drop(df_raw.index[0])
 
-
+        '''
+        df_raw.columns: ['date', ...(other features), target feature]
+        '''
         cols = list(df_raw.columns)
         cols.remove(self.target)
         cols.remove('date')
         df_raw = df_raw[['date'] + cols + [self.target]]
-        num_train = int(len(df_raw) * 0.8)
-        num_test = int(len(df_raw) * 0.1)  
+        num_train = int(len(df_raw) * 0.7)
+        num_test = int(len(df_raw) * 0.2)
         num_vali = len(df_raw) - num_train - num_test
         border1s = [0, num_train - self.seq_len, len(df_raw) - num_test - self.seq_len]
         border2s = [num_train, num_train + num_vali, len(df_raw)]
@@ -312,7 +309,6 @@ class Dataset_Custom(Dataset):
 
     def inverse_transform(self, data):
         return self.scaler.inverse_transform(data)
-
 
 class Dataset_M4(Dataset):
     def __init__(self, args, root_path, flag='pred', size=None,
@@ -753,3 +749,5 @@ class UEAloader(Dataset):
 
     def __len__(self):
         return len(self.all_IDs)
+
+

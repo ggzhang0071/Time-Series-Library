@@ -13,27 +13,31 @@ data_path="runmin_an_factors_${target}.csv"
 d_model=14
 model_name=iTransformer 
 
-target_name="long_term_forecast"
+task_name="long_term_forecast"
+output_task="classification"
 
-config_path="./scripts/beigang_script/optuna_opt/param_config_${target_name}.json"
+config_path="/git/Time-Series-Library/scripts/beigang_script/optuna_opt/param_config_${task_name}.json"
+config_path="/git/Time-Series-Library/scripts/beigang_script/optuna_opt/param_config_long_term_forecast.json"
 
 
 # run_optuna.py  run.py  
-python  -m pdb  /git/Time-Series-Library/run_optuna.py \
-  --task_name  $target_name \
+python -m pdb  /git/Time-Series-Library/run_optuna.py \
+  --task_name  $task_name \
   --is_training 1 \
   --root_path $root_path \
   --data_path $data_path \
+  --target_preprocess "target_classification" \
   --model_id   beigang_756_60 \
   --model $model_name \
-  --data custom \
-  --features M \
+  --data beigangClassi \
+  --features MS \
   --seq_len 765 \
   --label_len 60 \
   --pred_len 6 \
   --e_layers 5 \
   --d_layers 4 \
   --factor 3 \
+  --output_task $output_task \
   --enc_in $enc_in_choice \
   --dec_in $enc_in_choice \
   --c_out 1 \
@@ -50,7 +54,7 @@ python  -m pdb  /git/Time-Series-Library/run_optuna.py \
   --target $target \
   --inverse \
   --config ${config_path} \
-  --loss 'MAPE1'  
+  --loss 'CrossEntropy'  
 
 <<COMMENT
 python   /git/Time-Series-Library/run_optuna.py \
