@@ -156,13 +156,13 @@ def main():
             with open(args.config, 'r') as fid:
                 param_config=json.load(fid)
 
-        param_config = {#'seq_len': {'type': 'int', 'low': 32, 'high': 100}
+        """param_config = {#'seq_len': {'type': 'int', 'low': 32, 'high': 100}
              #'label_len': {'type': 'int', 'low': 48, 'high': 128},
         'd_model':{'type': 'int', 'low': 12, 'high': 100},
         'e_layers':{'type': 'int', 'low': 2, 'high': 6}, 
         'learning_rate': {'type': 'float', 'low': 1e-3, 'high': 0.01},
         'batch_size': {'type': 'int', 'low': 64, 'high': 128}
-        } 
+        } """
 
 
         if trial is not  None and param_config!=None:
@@ -281,8 +281,8 @@ if __name__=="__main__":
     end_time=time.time()
     optuna_time=end_time-start_time  
 
-    print("Optuna 最佳超参数: ", study.best_params)
-    print("Optuna 运行时间: ", optuna_time, "秒")
+    print("Optuna best params: ", study.best_params)
+    print("Optuna runtime: ", optuna_time, "sec")
 
 
 

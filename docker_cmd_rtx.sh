@@ -14,4 +14,3 @@ docker exec -it tsl /bin/bash
 #docker stop  tsl 
 
 
-grep -inr "参数"   --include="*.log"

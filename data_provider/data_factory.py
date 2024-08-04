@@ -55,8 +55,6 @@ def data_provider(args, flag):
             flag=flag,
         )
 
-        batch=collate_fn(data_set)
-
         data_loader = DataLoader(
             data_set,
             batch_size=batch_size,
