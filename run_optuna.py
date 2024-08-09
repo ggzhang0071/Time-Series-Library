@@ -43,6 +43,8 @@ def main():
         parser.add_argument('--data_path', type=str, default='ETTh1.csv', help='data file')
         parser.add_argument('--features', type=str, default='M',
                             help='forecasting task, options:[M, S, MS]; M:multivariate predict multivariate, S:univariate predict univariate, MS:multivariate predict univariate')
+        parser.add_argument('--target_preprocess', type=str, default="",help='preprocess for target')
+
         parser.add_argument('--target', type=str, default='OT', help='target feature in S or MS task')
         parser.add_argument('--freq', type=str, default='h',
                             help='freq for time features encoding, options:[s:secondly, t:minutely, h:hourly, d:daily, b:business days, w:weekly, m:monthly], you can also use more detailed freq like 15min or 3h')
@@ -83,6 +85,7 @@ def main():
         parser.add_argument('--embed', type=str, default='timeF',
                             help='time features encoding, options:[timeF, fixed, learned]')
         parser.add_argument('--activation', type=str, default='gelu', help='activation')
+        parser.add_argument('--output_task', type=str, default='', help='regression or classification')
         parser.add_argument('--output_attention', action='store_true', help='whether to output attention in ecoder')
         parser.add_argument('--channel_independence', type=int, default=1,
                             help='0: channel dependence 1: channel independence for FreTS model')
@@ -107,7 +110,6 @@ def main():
         parser.add_argument('--loss', type=str, default='MSE', help='loss function')
         parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
         parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
-        parser.add_argument('--target_diff', action='store_true', help='use automatic mixed precision training', default=False)
 
 
         # GPU
@@ -144,25 +146,23 @@ def main():
         parser.add_argument('--discdtw', default=False, action="store_true", help="Discrimitive DTW warp preset augmentation")
         parser.add_argument('--discsdtw', default=False, action="store_true", help="Discrimitive shapeDTW warp preset augmentation")
         parser.add_argument('--extra_tag', type=str, default="", help="Anything extra")
-        parser.add_argument('--config', type=str, required=False, default="./scripts/beigang_script/optuna_opt/param_config_long_term_forecast.json", help='Path to config file')
+        parser.add_argument('--config', type=str, required=False, default="", help='Path to config file')
 
         parser.add_argument('--num_trial', type=int, default=2, help="optuna trial numbers")
 
         args = parser.parse_args()
-
-        with open(args.config, 'r') as fid:
-            param_config=json.load(fid)
-
-
-        if trial is not  None and param_config!=None:
-            for param_name, attributes in param_config.items():
-                param_type = attributes['type']
-                if param_type == 'float':
-                    # 更新 args 中对应的属性
-                    setattr(args, param_name, trial.suggest_float(param_name, attributes['low'], attributes['high']))
-                elif param_type == 'int':
-                    setattr(args, param_name, trial.suggest_int(param_name, attributes['low'], attributes['high']))
-                # 如果有其他类型，可以在这里添加处理逻辑
+        if args.config!="":
+            with open(args.config, 'r') as fid:
+                param_config=json.load(fid)
+            if trial is not  None and param_config!=None:
+                for param_name, attributes in param_config.items():
+                    param_type = attributes['type']
+                    if param_type == 'float':
+                        # 更新 args 中对应的属性
+                        setattr(args, param_name, trial.suggest_float(param_name, attributes['low'], attributes['high']))
+                    elif param_type == 'int':
+                        setattr(args, param_name, trial.suggest_int(param_name, attributes['low'], attributes['high']))
+                    # 如果有其他类型，可以在这里添加处理逻辑
 
         # args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
         args.use_gpu = True if torch.cuda.is_available() else False
@@ -266,12 +266,12 @@ if __name__=="__main__":
     start_time=time.time()
     study = optuna.create_study(direction='minimize')
     objective = main()
-    study.optimize(objective, n_trials=10)
+    study.optimize(objective, n_trials=100)
     end_time=time.time()
     optuna_time=end_time-start_time  
 
-    print("Optuna 最佳超参数: ", study.best_params)
-    print("Optuna 运行时间: ", optuna_time, "秒")
+    print("Optuna best params: ", study.best_params)
+    print("Optuna runtime: ", optuna_time, "sec")
 
 
 
