@@ -43,7 +43,6 @@ def create_main():
         parser.add_argument('--features', type=str, default='M',
                             help='forecasting task, options:[M, S, MS]; M:multivariate predict multivariate, S:univariate predict univariate, MS:multivariate predict univariate')
         parser.add_argument('--target_preprocess', type=str, default="",help='preprocess for target')
-
         parser.add_argument('--target', type=str, default='OT', help='target feature in S or MS task')
         parser.add_argument('--freq', type=str, default='h',
                             help='freq for time features encoding, options:[s:secondly, t:minutely, h:hourly, d:daily, b:business days, w:weekly, m:monthly], you can also use more detailed freq like 15min or 3h')
@@ -244,12 +243,10 @@ if __name__=="__main__":
     print("Optuna best value: ", study.best_value)  # 最优值
     print("Optuna runtime: ", optuna_time, "sec")
 
-    # 将最优参数保存到 CSV 文件中
-    df = pd.DataFrame([study.best_params])
-    df.to_csv('optuna_best_params.csv', index=False)
+   
 
     # CSV 文件路径
-    file_path = 'optuna_results.csv'
+    file_path = 'optuna_best_params.csv'
 
     # 将最优参数和最优值保存到 CSV 文件中
     best_params = study.best_params

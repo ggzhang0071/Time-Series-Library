@@ -1,4 +1,4 @@
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=3
 
 target="4500K1.0S" 
 
@@ -12,24 +12,24 @@ data_path="runmin_an_factors_${target}.csv"
 
 d_model=14
 model_name=iTransformer 
+seq_len=756
+task_name="long_term_forecast"
 
-target_name="long_term_forecast"
-
-config_path="./scripts/beigang_script/optuna_opt/param_config_${target_name}.json"
+config_path="./scripts/beigang_script/optuna_opt/param_config_${task_name}.json"
 
 for pred_len in 3 5 7 9 11 13 15
 do 
 # run_optuna.py  run.py  
-python  -m pdb  /git/Time-Series-Library/run_optuna.py \
-  --task_name  $target_name \
+python  -m pdb  run_optuna.py \
+  --task_name  $task_name \
   --is_training 1 \
   --root_path $root_path \
   --data_path $data_path \
-  --model_id   beigang_756_60 \
+  --model_id  "beigang_${seq_len}_${pred_len}" \
   --model $model_name \
   --data custom \
   --features MS \
-  --seq_len 765 \
+  --seq_len $seq_len \
   --label_len 60 \
   --pred_len $pred_len \
   --e_layers 5 \
