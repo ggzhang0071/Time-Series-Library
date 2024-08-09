@@ -13,16 +13,15 @@ import optuna
 import time
 import logging
 import json
+import pandas as pd 
 logging.basicConfig(level=logging.INFO)
-
-
 
 def update_args_(args, params):
   """updates args in-place"""
   dargs = vars(args)
   dargs.update(params)
 
-def main():
+def create_main():
     def main(trial):
         fix_seed = 2021
         random.seed(fix_seed)
@@ -204,26 +203,11 @@ def main():
             for ii in range(args.itr):
                 # setting record of experiments
                 exp = Exp(args)  # set experiments
-                setting = '{}_{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_expand{}_dc{}_fc{}_eb{}_dt{}_{}_{}'.format(
-                    args.task_name,
-                    args.model_id,
-                    args.model,
-                    args.data,
-                    args.features,
-                    args.seq_len,
-                    args.label_len,
-                    args.pred_len,
-                    args.d_model,
-                    args.n_heads,
-                    args.e_layers,
-                    args.d_layers,
-                    args.d_ff,
-                    args.expand,
-                    args.d_conv,
-                    args.factor,
-                    args.embed,
-                    args.distil,
-                    args.des, ii)
+                setting = f"{args.task_name}_{args.model_id}_{args.model}_{args.data}\
+                 _ft{args.features}_sl{args.seq_len}_ll{args.label_len}_pl{args.pred_len}\
+                 _dm{args.d_model}_nh{args.n_heads}_el{args.e_layers}_dl{args.d_layers}\
+                 _df{args.d_ff}_expand{args.expand}_dc{args.d_conv}_fc{args.factor}_eb{args.embed}_dt{args.distil}_{args.des}_{ii}"
+
 
                 print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
                 model, vali_loss =exp.train(setting)
@@ -235,26 +219,11 @@ def main():
                 torch.cuda.empty_cache()
         else:
             ii = 0
-            setting = '{}_{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_expand{}_dc{}_fc{}_eb{}_dt{}_{}_{}'.format(
-                args.task_name,
-                args.model_id,
-                args.model,
-                args.data,
-                args.features,
-                args.seq_len,
-                args.label_len,
-                args.pred_len,
-                args.d_model,
-                args.n_heads,
-                args.e_layers,
-                args.d_layers,
-                args.d_ff,
-                args.expand,
-                args.d_conv,
-                args.factor,
-                args.embed,
-                args.distil,
-                args.des, ii)
+            setting = f"{args.task_name}_{args.model_id}_{args.model}_{args.data}_ft{args.features}\
+                _sl{args.seq_len}_ll{args.label_len}_pl{args.pred_len}_dm{args.d_model}_nh{args.n_heads}\
+                    _el{args.e_layers}_dl{args.d_layers}_df{args.d_ff}_expand{args.expand}_dc{args.d_conv}\
+                        _fc{args.factor}_eb{args.embed}_dt{args.distil}_{args.des}_{ii}"
+
 
             exp = Exp(args)  # set experiments
             print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
@@ -263,15 +232,36 @@ def main():
         return vali_loss
     return main
 if __name__=="__main__":
+    n_trials=100
     start_time=time.time()
     study = optuna.create_study(direction='minimize')
-    objective = main()
-    study.optimize(objective, n_trials=100)
+    objective =create_main()
+    study.optimize(objective, n_trials=n_trials)
     end_time=time.time()
     optuna_time=end_time-start_time  
 
     print("Optuna best params: ", study.best_params)
+    print("Optuna best value: ", study.best_value)  # 最优值
     print("Optuna runtime: ", optuna_time, "sec")
+
+    # 将最优参数保存到 CSV 文件中
+    df = pd.DataFrame([study.best_params])
+    df.to_csv('optuna_best_params.csv', index=False)
+
+    # CSV 文件路径
+    file_path = 'optuna_results.csv'
+
+    # 将最优参数和最优值保存到 CSV 文件中
+    best_params = study.best_params
+    best_params['best_value'] = study.best_value  # 添加最优值到字典中
+    best_params["n_trials"]=n_trials
+    df = pd.DataFrame([best_params])
+
+    # 检查文件是否存在，如果存在则追加，否则创建新文件
+    if os.path.exists(file_path):
+        df.to_csv(file_path, mode='a', header=False, index=False)
+    else:
+        df.to_csv(file_path, index=False)
 
 
 

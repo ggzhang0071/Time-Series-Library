@@ -285,11 +285,15 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
                 preds.append(pred)
                 trues.append(true)
-                if i % 20 == 0:
+                if i % 2 == 1:
                     input = batch_x.detach().cpu().numpy()
                     if test_data.scale and self.args.inverse:
                         shape = input.shape 
-                        input = test_data.inverse_transform(input.squeeze(0)).reshape(shape)
+                        if shape[0] == 1:
+                            input = test_data.inverse_transform(input.squeeze(0)).reshape(shape)
+                        else:
+                            input = test_data.inverse_transform(input).reshape(shape)
+                        
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
                     visual(gt, self.args.pred_len, pd, os.path.join(folder_path, str(i) + '.pdf'))
@@ -325,10 +329,14 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 dtw = -999
                 
             mae, mse, rmse, mape, mspe = metric(preds, trues)
-            print('mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
-            f = open("result_long_term_forecast.txt", 'a')
+            print(f'mse:{mse}, mae:{mae}, mape:{mape}, dtw:{dtw}')
+            if test_data.scale and self.args.inverse:
+                f = open("result_long_term_forecast_inverse.txt", 'a')
+            else:
+                 f = open("result_long_term_forecast.txt", 'a')
+
             f.write(setting + "  \n")
-            f.write('mse:{}, mae:{}, dtw:{}'.format(mse, mae, dtw))
+            f.write(f'mse:{mse}, mae:{mae}, mape:{mape}, dtw:{dtw}')
             f.write('\n')
             f.write('\n')
             f.close()
