@@ -21,7 +21,7 @@ config_path="/git/Time-Series-Library/scripts/beigang_script/optuna_opt/param_co
 
 
 # run_optuna.py  run.py  
-python  -m pdb  /git/Time-Series-Library/run_optuna.py \
+python   /git/Time-Series-Library/run_optuna.py \
   --task_name  $task_name \
   --is_training 1 \
   --root_path $root_path \
