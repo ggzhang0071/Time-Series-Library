@@ -15,12 +15,12 @@ model_name=iTransformer
 seq_len=756
 task_name="long_term_forecast"
 
-config_path="./scripts/beigang_script/optuna_opt/param_config_${task_name}.json"
+config_path="./scripts/beigang_script/optuna_opt/param_config_${task_name}_${model_name}.json"
 
 for pred_len in 3 5 7 9 11 13 15
 do 
 # run_optuna.py  run.py  
-python  -m pdb  run_optuna.py \
+nohup python   run_optuna.py \
   --task_name  $task_name \
   --is_training 1 \
   --root_path $root_path \
@@ -44,6 +44,7 @@ python  -m pdb  run_optuna.py \
   --d_model $d_model \
   --d_ff $((d_model*4)) \
   --p_hidden_dims  16 16 \
+  --target_preprocess  "diff" \
   --batch_size 128 \
   --learning_rate 0.01 \
   --itr 1   \

@@ -285,7 +285,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
                 preds.append(pred)
                 trues.append(true)
-                if i % 2 == 1:
+                """if i % 2 == 1:
                     input = batch_x.detach().cpu().numpy()
                     if test_data.scale and self.args.inverse:
                         shape = input.shape 
@@ -296,7 +296,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-                    visual(gt, self.args.pred_len, pd, os.path.join(folder_path, str(i) + '.pdf'))
+                    visual(gt, self.args.pred_len, pd, os.path.join(folder_path, str(i) + '.pdf'))"""
         if not preds:  
             print("Preds is an empty list, the trial is failed")  
             
