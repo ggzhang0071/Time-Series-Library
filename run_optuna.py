@@ -152,7 +152,6 @@ def create_main():
         if args.config!="":
             with open(args.config, 'r') as fid:
                 param_config=json.load(fid)
-<<<<<<< HEAD
             if trial is not  None and param_config!=None:
                 for param_name, attributes in param_config.items():
                     param_type = attributes['type']
@@ -162,27 +161,6 @@ def create_main():
                     elif param_type == 'int':
                         setattr(args, param_name, trial.suggest_int(param_name, attributes['low'], attributes['high']))
                     # 如果有其他类型，可以在这里添加处理逻辑
-=======
-
-        """param_config = {#'seq_len': {'type': 'int', 'low': 32, 'high': 100}
-             #'label_len': {'type': 'int', 'low': 48, 'high': 128},
-        'd_model':{'type': 'int', 'low': 12, 'high': 100},
-        'e_layers':{'type': 'int', 'low': 2, 'high': 6}, 
-        'learning_rate': {'type': 'float', 'low': 1e-3, 'high': 0.01},
-        'batch_size': {'type': 'int', 'low': 64, 'high': 128}
-        } """
-
-
-        if trial is not  None and param_config!=None:
-            for param_name, attributes in param_config.items():
-                param_type = attributes['type']
-                if param_type == 'float':
-                    # 更新 args 中对应的属性
-                    setattr(args, param_name, trial.suggest_float(param_name, attributes['low'], attributes['high']))
-                elif param_type == 'int':
-                    setattr(args, param_name, trial.suggest_int(param_name, attributes['low'], attributes['high']))
-                # 如果有其他类型，可以在这里添加处理逻辑
->>>>>>> tmp
 
         # args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
         args.use_gpu = True if torch.cuda.is_available() else False
@@ -262,11 +240,8 @@ if __name__=="__main__":
     optuna_time=end_time-start_time  
 
     print("Optuna best params: ", study.best_params)
-<<<<<<< HEAD
     print("Optuna best value: ", study.best_value)  # 最优值
     print("Optuna runtime: ", optuna_time, "sec")
-
-   
 
     # CSV 文件路径
     file_path = 'optuna_best_params.csv'
@@ -282,9 +257,7 @@ if __name__=="__main__":
         df.to_csv(file_path, mode='a', header=False, index=False)
     else:
         df.to_csv(file_path, index=False)
-=======
-    print("Optuna runtime: ", optuna_time, "sec")
->>>>>>> tmp
+
 
 
 

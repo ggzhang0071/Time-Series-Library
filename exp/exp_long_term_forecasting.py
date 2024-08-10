@@ -173,12 +173,12 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 else:
                     loss.backward()
                     model_optim.step()
-                    """for name, param in self.model.named_parameters():
+                    for name, param in self.model.named_parameters():
                         if param.grad is not None:
                             # Add histogram for the parameter gradients if they exist
                             writer.add_histogram(f'{name}.grad', param.grad, epoch)
                         else:
-                            print(f'No gradient for {name} at epoch {epoch}')"""
+                            print(f'No gradient for {name} at epoch {epoch}')
 
 
 

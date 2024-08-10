@@ -20,11 +20,7 @@ config_path="./scripts/beigang_script/optuna_opt/param_config_${task_name}_${mod
 for pred_len in 3 5 7 9 11 13 15
 do 
 # run_optuna.py  run.py  
-<<<<<<< HEAD
 nohup python   run_optuna.py \
-=======
-python  -m pdb  /git/Time-Series-Library/run_optuna.py \
->>>>>>> tmp
   --task_name  $task_name \
   --is_training 1 \
   --root_path $root_path \
