@@ -1,6 +1,7 @@
 export CUDA_VISIBLE_DEVICES=3
 
 target="4500K1.0S" 
+target="4500K1.0S" 
 
 root_path="/git/datasets/beigang_data/${target}"
 #data_path='all_variables_for_mine_price_4500K1.0S.csv'
@@ -16,11 +17,11 @@ seq_len=756
 task_name="long_term_forecast"
 
 config_path="./scripts/beigang_script/optuna_opt/param_config_${task_name}_${model_name}.json"
-
-for pred_len in 3 5 7 9 11 13 15
+#3 5 7 9 11 13 15
+for pred_len in 7
 do 
 # run_optuna.py  run.py  
-nohup python   run_optuna.py \
+python -m pdb   run_optuna.py \
   --task_name  $task_name \
   --is_training 1 \
   --root_path $root_path \
@@ -58,7 +59,8 @@ done
 for pred_len in 3 5 7 9 11 13 15
 do 
 # run_optuna.py  run.py  
-python -m pdb  /git/Time-Series-Library/run_optuna.py \
+
+python   run_optuna.py \
   --task_name  $task_name \
   --is_training 1 \
   --root_path $root_path \
@@ -91,6 +93,30 @@ python -m pdb  /git/Time-Series-Library/run_optuna.py \
   --target $target \
   --inverse \
   --config ${config_path} \
-  --loss 'MSE'  
-done 
+  --loss 'MAPE1'  
 
+<<COMMENT
+python   /git/Time-Series-Library/run_optuna.py \
+  --task_name short_term_forecast \
+  --is_training 1 \
+  --root_path $root_path \
+  --data_path $data_path \
+  --data "custom" \
+  --seasonal_patterns 'Monthly' \
+  --model_id beigang \
+  --model $model_name \
+  --features M \
+  --e_layers 2 \
+  --d_layers 1 \
+  --factor 3 \
+  --enc_in 1 \
+  --dec_in 1 \
+  --c_out 1 \
+  --batch_size 16 \
+  --d_model 512 \
+  --des 'Exp' \
+  --itr 1 \
+  --learning_rate 0.001 \
+  --target 4500K1.0S \
+  --loss 'SMAPE'
+COMMENT

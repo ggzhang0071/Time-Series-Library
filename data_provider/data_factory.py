@@ -15,7 +15,9 @@ data_dict = {
     'SMAP': SMAPSegLoader,
     'SMD': SMDSegLoader,
     'SWAT': SWATSegLoader,
-    'UEA': UEAloader
+    'UEA': UEAloader,
+    #'beigangClassi':beigangClassifiLoader
+
 }
 
 
