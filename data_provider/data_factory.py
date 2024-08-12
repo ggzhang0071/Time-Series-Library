@@ -15,9 +15,7 @@ data_dict = {
     'SMAP': SMAPSegLoader,
     'SMD': SMDSegLoader,
     'SWAT': SWATSegLoader,
-    'UEA': UEAloader,
-    #'beigangClassi':beigangClassifiLoader
-
+    'UEA': UEAloader
 }
 
 
@@ -67,13 +65,13 @@ def data_provider(args, flag):
         if args.data == 'm4':
             drop_last = False
         data_set = Data(
-            args = args,
             root_path=args.root_path,
             data_path=args.data_path,
             flag=flag,
             size=[args.seq_len, args.label_len, args.pred_len],
             features=args.features,
             target=args.target,
+            target_preprocess=args.target_preprocess,
             timeenc=timeenc,
             freq=freq,
             seasonal_patterns=args.seasonal_patterns

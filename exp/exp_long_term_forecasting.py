@@ -1,4 +1,5 @@
 from data_provider.data_factory import data_provider
+from data_provider.data_loader import TrimLastColumnDataset
 from exp.exp_basic import Exp_Basic
 from utils.tools import EarlyStopping, adjust_learning_rate, visual
 from utils.metrics import metric
@@ -56,6 +57,10 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         self.model.eval()
         with torch.no_grad():
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(vali_loader):
+                if self.args.target_preprocess=="diff":
+                    batch_x=batch_x[:,:,:-1]
+                    target_original=batch_y[:,:,-1]
+                    batch_y=batch_y[:,:,:-1]
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float()
 
@@ -121,6 +126,11 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             self.model.train()
             epoch_time = time.time()
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(train_loader):
+                if self.args.target_preprocess=="diff":
+                    batch_x=batch_x[:,:,:-1]
+                    target_original=batch_y[:,:,-1]
+                    batch_y=batch_y[:,:,:-1]
+                    
                 iter_count += 1
                 model_optim.zero_grad()
                 batch_x = batch_x.float().to(self.device)
@@ -180,8 +190,6 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         else:
                             print(f'No gradient for {name} at epoch {epoch}')
 
-
-
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
             vali_loss = self.vali(vali_data, vali_loader, criterion)
@@ -221,8 +229,19 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             os.makedirs(folder_path)
 
         self.model.eval()
+
+        if self.args.target_preprocess=="diff":
+            test_data = TrimLastColumnDataset(test_data)
+            print(test_data[0].shape)
+          
+        
         with torch.no_grad():
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(test_loader):
+                if self.args.target_preprocess=="diff":
+                    batch_x=batch_x[:,:,:-1]
+                    target_original=batch_y[:,:,-1]
+                    batch_y=batch_y[:,:,:-1]
+
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
 
@@ -336,7 +355,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             if test_data.scale and self.args.inverse:
                 f = open("result_long_term_forecast_inverse.txt", 'a')
             else:
-                 f = open("result_long_term_forecast.txt", 'a')
+                f = open("result_long_term_forecast.txt", 'a')
 
             f.write(setting + "  \n")
             f.write(f'mse:{mse}, mae:{mae}, mape:{mape}, dtw:{dtw}')

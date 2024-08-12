@@ -40,7 +40,8 @@ python -m pdb   run_optuna.py \
   --dec_in $enc_in_choice \
   --c_out 1 \
   --des 'Exp' \
-  --train_epochs 20 \
+  --freq 'd'\
+  --train_epochs 10 \
   --dropout 0.1 \
   --d_model $d_model \
   --d_ff $((d_model*4)) \
@@ -55,7 +56,7 @@ python -m pdb   run_optuna.py \
   --config ${config_path} \
   --loss 'MSE'  
 done 
-
+<<COMMENT
 for pred_len in 3 5 7 9 11 13 15
 do 
 # run_optuna.py  run.py  
@@ -94,29 +95,3 @@ python   run_optuna.py \
   --inverse \
   --config ${config_path} \
   --loss 'MAPE1'  
-
-<<COMMENT
-python   /git/Time-Series-Library/run_optuna.py \
-  --task_name short_term_forecast \
-  --is_training 1 \
-  --root_path $root_path \
-  --data_path $data_path \
-  --data "custom" \
-  --seasonal_patterns 'Monthly' \
-  --model_id beigang \
-  --model $model_name \
-  --features M \
-  --e_layers 2 \
-  --d_layers 1 \
-  --factor 3 \
-  --enc_in 1 \
-  --dec_in 1 \
-  --c_out 1 \
-  --batch_size 16 \
-  --d_model 512 \
-  --des 'Exp' \
-  --itr 1 \
-  --learning_rate 0.001 \
-  --target 4500K1.0S \
-  --loss 'SMAPE'
-COMMENT

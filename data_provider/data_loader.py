@@ -206,14 +206,11 @@ class Dataset_ETT_minute(Dataset):
         return self.scaler.inverse_transform(data)
 
 
-
-
 class Dataset_Custom(Dataset):
-    def __init__(self, args, root_path, flag='train', size=None,
+    def __init__(self, root_path, flag='train', size=None,
                  features='S', data_path='ETTh1.csv',
-                 target='OT', scale=True, timeenc=0, freq='h', seasonal_patterns=None):
+                 target='OT', scale=True, target_preprocess=None,timeenc=0, freq='h', seasonal_patterns=None,augmentation_ratio=0):
         # size [seq_len, label_len, pred_len]
-        self.args = args
         # info
         if size == None:
             self.seq_len = 24 * 4 * 4
@@ -230,9 +227,12 @@ class Dataset_Custom(Dataset):
 
         self.features = features
         self.target = target
+        self.target_preprocess=target_preprocess
+        self.augmentation_ratio=augmentation_ratio
         self.scale = scale
         self.timeenc = timeenc
         self.freq = freq
+    
 
         self.root_path = root_path
         self.data_path = data_path
@@ -247,17 +247,25 @@ class Dataset_Custom(Dataset):
             for column in df_raw.columns:
                 if column != 'date':  # 排除不需要插值的时间戳列
                     df_raw[[column]] = imputer.fit_transform(df_raw[[column]])
-        if self.args.target_preprocess=="diff":  
-            y=df_raw[self.args.target]
+        if self.target_preprocess=="diff":  
+            y=df_raw[self.target]
+            df_raw["target_original"]=y
             y_diff=y.shift(-1)/y -1
-            df_raw[self.args.target]=y_diff
-            #df_raw = df_raw.drop(df_raw.index[-1])
+            df_raw[self.target]=y_diff
 
-
-        cols = list(df_raw.columns)
-        cols.remove(self.target)
-        cols.remove('date')
-        df_raw = df_raw[['date'] + cols + [self.target]]
+        
+            cols = list(df_raw.columns)
+            cols.remove(self.target)
+            cols.remove("target_original")
+            cols.remove('date')
+            df_raw = df_raw[['date'] + cols +[self.target]+["target_original"]]
+        elif self.target_preprocess=="original":
+            cols = list(df_raw.columns)
+            cols.remove(self.target)
+            cols.remove('date')
+            df_raw = df_raw[['date'] + cols +[self.target]]
+        
+        
         num_train = int(len(df_raw) * 0.8)
         num_test = int(len(df_raw) * 0.1)
         num_vali = len(df_raw) - num_train - num_test
@@ -272,6 +280,7 @@ class Dataset_Custom(Dataset):
         elif self.features == 'S':
             df_data = df_raw[[self.target]]
 
+        
         if self.scale:
             train_data = df_data[border1s[0]:border2s[0]]
             self.scaler.fit(train_data.values)
@@ -279,6 +288,7 @@ class Dataset_Custom(Dataset):
         else:
             data = df_data.values
 
+        # 加入时间戳信息作为feature
         df_stamp = df_raw[['date']][border1:border2]
         df_stamp['date'] = pd.to_datetime(df_stamp.date)
         if self.timeenc == 0:
@@ -294,11 +304,12 @@ class Dataset_Custom(Dataset):
         self.data_x = data[border1:border2]
         self.data_y = data[border1:border2]
 
-        if self.set_type == 0 and self.args.augmentation_ratio > 0:
+        if self.set_type == 0 and self.augmentation_ratio > 0:
             self.data_x, self.data_y, augmentation_tags = run_augmentation_single(self.data_x, self.data_y, self.args)
 
         self.data_stamp = data_stamp
 
+       
     def __getitem__(self, index):
         s_begin = index
         s_end = s_begin + self.seq_len
@@ -311,12 +322,12 @@ class Dataset_Custom(Dataset):
         seq_y_mark = self.data_stamp[r_begin:r_end]
 
         return seq_x, seq_y, seq_x_mark, seq_y_mark
-
     def __len__(self):
         return len(self.data_x) - self.seq_len - self.pred_len + 1
 
     def inverse_transform(self, data):
-        return self.scaler.inverse_transform(data)
+        return self.scaler.inverse_transform(data)xain
+
 
 class Dataset_M4(Dataset):
     def __init__(self, args, root_path, flag='pred', size=None,
@@ -757,5 +768,21 @@ class UEAloader(Dataset):
 
     def __len__(self):
         return len(self.all_IDs)
+
+
+
+class TrimLastColumnDataset(Dataset):
+    def __init__(self, original_data):
+        self.data = original_data
+    
+    def __len__(self):
+        return len(self.data)
+    
+    def __getitem__(self, idx):
+        # 获取数据并删除最后一列
+        item = self.data[idx][:, :-1]
+        return item
+
+
 
 

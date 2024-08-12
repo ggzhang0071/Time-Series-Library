@@ -115,3 +115,10 @@ def adjustment(gt, pred):
 
 def cal_accuracy(y_pred, y_true):
     return np.mean(y_pred == y_true)
+
+def reconstruct_series_from_preds(preds_shift, initial_value):
+    # 在初始目标序列做差分的情况下，在最后序列恢复的时候，使用逐步反推原始序列
+    preds_y=[initial_value]
+    for i in range(len(preds_shift)-1):
+        preds_y.append(round(preds_y[i] * (1 + preds_shift[i])))
+    return pd.Series(preds_y)

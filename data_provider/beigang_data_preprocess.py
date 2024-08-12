@@ -39,10 +39,10 @@ def prepare_data_for_TSL(args,dir_path,file_path):
                 df_raw[[column]] = imputer.fit_transform(df_raw[[column]])
 
     # 是否对目标数据y 进行处理
-    if args.target_preprocess=="target_diff":
+    if args.target_preprocess=="diff":
         df_raw[args.target]= df_raw[args.target].diff()
         df_raw = df_raw.drop(df_raw.index[0])
-    elif args.target_preprocess=="for_classification":
+    elif args.target_preprocess=="original":
         target_value=df_raw[args.target]
         mean_value = target_value.mean()
         target_value = (target_value >= mean_value).astype(int)
