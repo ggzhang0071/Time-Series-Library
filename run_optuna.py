@@ -12,7 +12,7 @@ import numpy as np
 import optuna 
 import time
 import logging
-import json
+import json, re 
 import pandas as pd 
 logging.basicConfig(level=logging.INFO)
 
@@ -256,38 +256,38 @@ if __name__=="__main__":
     best_params["n_trials"] = n_trials
 
 
-# .sh 文件路径
-file_path = 'optuna_best_params.sh'
+    # .sh 文件路径
+    file_path = 'optuna_best_params.sh'
 
-# 获取最优参数
-best_params = study.best_params
-best_params['best_value'] = study.best_value  # 添加最优值到字典中
-best_params["n_trials"] = n_trials
+    # 获取最优参数
+    best_params = study.best_params
+    best_params['best_value'] = study.best_value  # 添加最优值到字典中
+    best_params["n_trials"] = n_trials
 
-# 检查文件是否存在并获取现有的 optuna_params 函数的数量
-if os.path.exists(file_path):
-    with open(file_path, 'r') as f:
-        content = f.read()
-    # 使用正则表达式查找现有的 optuna_params 函数数量
-    matches = re.findall(r'optuna_params_(\d+)', content)
-    if matches:
-        max_num = max([int(match) for match in matches])
-        func_num = max_num + 1
+    # 检查文件是否存在并获取现有的 optuna_params 函数的数量
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            content = f.read()
+        # 使用正则表达式查找现有的 optuna_params 函数数量
+        matches = re.findall(r'optuna_params_(\d+)', content)
+        if matches:
+            max_num = max([int(match) for match in matches])
+            func_num = max_num + 1
+        else:
+            func_num = 1
     else:
         func_num = 1
-else:
-    func_num = 1
 
-# 写入 .sh 文件
-with open(file_path, 'a') as f:  # 'a' 模式用于追加到文件末尾
-    f.write("\n")
-    f.write(f"optuna_params_{func_num}() {{\n")
-    for key, value in best_params.items():
-        if isinstance(value, str):
-            # 如果值是字符串，则加上双引号
-            f.write(f"    export {key}=\"{value}\"\n")
-        else:
-            f.write(f"    export {key}={value}\n")
-    f.write("}\n")
+    # 写入 .sh 文件
+    with open(file_path, 'a') as f:  # 'a' 模式用于追加到文件末尾
+        f.write("\n")
+        f.write(f"optuna_params_{func_num}() {{\n")
+        for key, value in best_params.items(): 
+            if isinstance(value, str):
+                # 如果值是字符串，则加上双引号
+                f.write(f"    export {key}=\"{value}\"\n")
+            else:
+                f.write(f"    export {key}={value}\n")
+        f.write("}\n")
 
-print(f"Saved best parameters as optuna_params_{func_num} to {file_path}")
+    print(f"Saved best parameters as optuna_params_{func_num} to {file_path}")

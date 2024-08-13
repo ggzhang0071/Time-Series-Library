@@ -6,7 +6,7 @@ root_path="/git/datasets/beigang_data/${target}"
 data_path="runmin_an_factors_${target}.csv"
 #data_path="early_variables_for_mine_price.csv"
 
-model_name=iTransformer 
+model_name=iTransformer   
 enc_in_choice=78
 seq_len=756
 task_name="long_term_forecast"
@@ -37,7 +37,7 @@ fi
 for pred_len in 13
 do 
 # run_optuna.py  run.py  
- python -m pdb  run_optuna.py \
+ python   run_optuna.py \
   --task_name  $task_name \
   --is_training 1 \
   --root_path $root_path \
