@@ -207,7 +207,7 @@ class Dataset_ETT_minute(Dataset):
 
 
 class Dataset_Custom(Dataset):
-    def __init__(self, root_path, flag='train', size=None,
+    def __init__(self, args,root_path, flag='train', size=None,
                  features='S', data_path='ETTh1.csv',
                  target='OT', scale=True, target_preprocess=None,timeenc=0, freq='h', seasonal_patterns=None,augmentation_ratio=0):
         # size [seq_len, label_len, pred_len]
@@ -225,6 +225,7 @@ class Dataset_Custom(Dataset):
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
 
+        self.args=args 
         self.features = features
         self.target = target
         self.target_preprocess=target_preprocess
@@ -232,6 +233,7 @@ class Dataset_Custom(Dataset):
         self.scale = scale
         self.timeenc = timeenc
         self.freq = freq
+        self.flag=flag 
     
 
         self.root_path = root_path
@@ -239,7 +241,6 @@ class Dataset_Custom(Dataset):
         self.__read_data__()
 
     def __read_data__(self):
-        self.scaler = StandardScaler()
         df_raw = pd.read_csv(os.path.join(self.root_path,
                                           self.data_path))
         if df_raw.isnull().values.any():
@@ -247,19 +248,30 @@ class Dataset_Custom(Dataset):
             for column in df_raw.columns:
                 if column != 'date':  # 排除不需要插值的时间戳列
                     df_raw[[column]] = imputer.fit_transform(df_raw[[column]])
-        if self.target_preprocess=="diff":  
+   
+        if self.target_preprocess=="diff" and self.flag=="test" and self.scale:  
+            # 这里限制test是为了把 在train, val 中代码不出现不出现 高维信息， scale 做约束，是为了限制后续用不用inverse
             y=df_raw[self.target]
             df_raw["target_original"]=y
+            # 这的diff 是来自于算法的0
             y_diff=y.shift(-1)/y -1
             df_raw[self.target]=y_diff
 
-        
             cols = list(df_raw.columns)
             cols.remove(self.target)
             cols.remove("target_original")
             cols.remove('date')
             df_raw = df_raw[['date'] + cols +[self.target]+["target_original"]]
-        elif self.target_preprocess=="original":
+        elif self.target_preprocess=="diff":
+            y=df_raw[self.target]
+            y_diff=y.shift(-1)/y -1 
+            df_raw[self.target]=y_diff
+
+            cols = list(df_raw.columns)
+            cols.remove(self.target)
+            cols.remove('date')
+            df_raw = df_raw[['date'] + cols +[self.target]]
+        else:
             cols = list(df_raw.columns)
             cols.remove(self.target)
             cols.remove('date')
@@ -280,8 +292,18 @@ class Dataset_Custom(Dataset):
         elif self.features == 'S':
             df_data = df_raw[[self.target]]
 
-        
-        if self.scale:
+        # 是否对数据做尺度化
+        if self.scale and self.target_preprocess=="diff" and self.flag=="test":
+            # 对test 数据做特殊数据增加处理
+            self.scaler = StandardScaler()
+            train_data = df_data[border1s[0]:border2s[0]]
+            train_data=train_data.drop(columns=["target_original"])
+            original_target=df_data["target_original"]
+            df_data=df_data.drop(columns=["target_original"])
+            self.scaler.fit(train_data.values)
+            data = self.scaler.transform(df_data.values)
+        elif self.scale:
+            self.scaler = StandardScaler()
             train_data = df_data[border1s[0]:border2s[0]]
             self.scaler.fit(train_data.values)
             data = self.scaler.transform(df_data.values)
@@ -301,32 +323,56 @@ class Dataset_Custom(Dataset):
             data_stamp = time_features(pd.to_datetime(df_stamp['date'].values), freq=self.freq)
             data_stamp = data_stamp.transpose(1, 0)
 
+        # 截取train val and test 
         self.data_x = data[border1:border2]
         self.data_y = data[border1:border2]
+        if self.target_preprocess=="diff" and self.flag=="test":
+            self.original_target=original_target[border1:border2]
 
         if self.set_type == 0 and self.augmentation_ratio > 0:
             self.data_x, self.data_y, augmentation_tags = run_augmentation_single(self.data_x, self.data_y, self.args)
 
         self.data_stamp = data_stamp
 
-       
-    def __getitem__(self, index):
-        s_begin = index
+        """index=0
+        s_begin = index 
         s_end = s_begin + self.seq_len
         r_begin = s_end - self.label_len
         r_end = r_begin + self.label_len + self.pred_len
+        if self.target_preprocess=="diff" and self.flag=="test":
+            target_original=self.original_target.values[r_begin:r_end]
+        else:
+            # target_original 只是为了占位
+            target_original=torch.zeros((r_end-r_begin))
+        seq_x = self.data_x[s_begin:s_end]
+        seq_y = self.data_y[r_begin:r_end]
+        seq_x_mark = self.data_stamp[s_begin:s_end]
+        seq_y_mark = self.data_stamp[r_begin:r_end]"""
 
+
+    def __getitem__(self, index):
+        s_begin = index 
+        s_end = s_begin + self.seq_len
+        r_begin = s_end - self.label_len
+        r_end = r_begin + self.label_len + self.pred_len
+        if self.target_preprocess=="diff" and self.flag=="test" and self.scale:
+            target_original=self.original_target.values[r_begin:r_end]
+        else:
+            # target_original 只是为了占位
+            target_original=torch.zeros((r_end-r_begin))
         seq_x = self.data_x[s_begin:s_end]
         seq_y = self.data_y[r_begin:r_end]
         seq_x_mark = self.data_stamp[s_begin:s_end]
         seq_y_mark = self.data_stamp[r_begin:r_end]
+        return seq_x, seq_y, seq_x_mark, seq_y_mark, target_original
 
-        return seq_x, seq_y, seq_x_mark, seq_y_mark
+      
+
     def __len__(self):
         return len(self.data_x) - self.seq_len - self.pred_len + 1
 
     def inverse_transform(self, data):
-        return self.scaler.inverse_transform(data)xain
+        return self.scaler.inverse_transform(data)
 
 
 class Dataset_M4(Dataset):
@@ -770,7 +816,7 @@ class UEAloader(Dataset):
         return len(self.all_IDs)
 
 
-
+"""
 class TrimLastColumnDataset(Dataset):
     def __init__(self, original_data):
         self.data = original_data
@@ -781,7 +827,7 @@ class TrimLastColumnDataset(Dataset):
     def __getitem__(self, idx):
         # 获取数据并删除最后一列
         item = self.data[idx][:, :-1]
-        return item
+        return item"""
 
 
 

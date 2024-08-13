@@ -29,6 +29,7 @@ def choose_variable(root_path,data_path,all_targets,target):
     df.to_csv(os.path.join(root_path,data_path_new), index=False)
 
 def prepare_data_for_TSL(args,dir_path,file_path):
+    # 准备数据用于time series libray
     df_raw = pd.read_csv(os.path.join(dir_path,file_path))
 
     # 对缺失值进行处理

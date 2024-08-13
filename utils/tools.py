@@ -116,9 +116,39 @@ def adjustment(gt, pred):
 def cal_accuracy(y_pred, y_true):
     return np.mean(y_pred == y_true)
 
-def reconstruct_series_from_preds(preds_shift, initial_value):
+def reconstruct_series_from_preds(preds_shift, batch_original_y):
     # 在初始目标序列做差分的情况下，在最后序列恢复的时候，使用逐步反推原始序列
-    preds_y=[initial_value]
-    for i in range(len(preds_shift)-1):
-        preds_y.append(round(preds_y[i] * (1 + preds_shift[i])))
-    return pd.Series(preds_y)
+    pred_original=[]
+    for i in range(len(batch_original_y)):
+        tmp=[batch_original_y[i][0][0]]
+        for j in range(preds_shift[i].shape[0]-1):
+            next_value = round(tmp[-1] * (1 + preds_shift[i][j].item()))  # 将 preds_shift[i][j] 转为标量
+            tmp.append(next_value)
+        pred_original.append(np.array(tmp).reshape(-1, 1))
+    return pred_original
+
+def diff_batch(batch_original_y):
+    diff_batch_y = []
+    for i in range(len(batch_original_y)):
+        y = batch_original_y[i]
+        # 将 NumPy 数组转换为 Pandas Series
+        y_series = pd.Series(y.flatten())
+        # 计算差分：shift后减去原值，然后除以原值
+        y_shift = y_series.shift(-1) / y_series - 1
+        # 将结果转换为 NumPy 数组并重新调整为形状 (13, 1)
+        y_shift_np = y_shift.values.reshape(-1, 1)
+        # 将结果添加到 diff_batch_y 列表中
+        diff_batch_y.append(y_shift_np)
+    return diff_batch_y
+
+
+if __name__=="__main__":
+    import torch 
+    batch_original_y  = [torch.randint(low=0, high=100, size=(7, 1)) for _ in range(100)]
+    preds_shift = [torch.randn(7, 1) for _ in range(100)]
+    reconstruct_series_from_preds(preds_shift,batch_original_y)
+
+
+
+    
+

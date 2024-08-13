@@ -1,7 +1,6 @@
 export CUDA_VISIBLE_DEVICES=3
 
 target="4500K1.0S" 
-target="4500K1.0S" 
 
 root_path="/git/datasets/beigang_data/${target}"
 #data_path='all_variables_for_mine_price_4500K1.0S.csv'
@@ -18,10 +17,10 @@ task_name="long_term_forecast"
 
 config_path="./scripts/beigang_script/optuna_opt/param_config_${task_name}_${model_name}.json"
 #3 5 7 9 11 13 15
-for pred_len in 7
+for pred_len in 13
 do 
 # run_optuna.py  run.py  
-python -m pdb   run_optuna.py \
+ python -m pdb  run_optuna.py \
   --task_name  $task_name \
   --is_training 1 \
   --root_path $root_path \
@@ -51,16 +50,16 @@ python -m pdb   run_optuna.py \
   --learning_rate 0.01 \
   --itr 1   \
   --patience 10 \
-  --target $target \
   --inverse \
+  --target $target \
   --config ${config_path} \
   --loss 'MSE'  
 done 
+
 <<COMMENT
 for pred_len in 3 5 7 9 11 13 15
 do 
 # run_optuna.py  run.py  
-
 python   run_optuna.py \
   --task_name  $task_name \
   --is_training 1 \
@@ -92,6 +91,6 @@ python   run_optuna.py \
   --itr 1   \
   --patience 10 \
   --target $target \
-  --inverse \
   --config ${config_path} \
   --loss 'MAPE1'  
+COMMENT

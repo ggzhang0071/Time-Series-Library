@@ -1,5 +1,4 @@
 from data_provider.data_factory import data_provider
-from data_provider.data_loader import TrimLastColumnDataset
 from exp.exp_basic import Exp_Basic
 from utils.tools import EarlyStopping, adjust_learning_rate, visual
 from utils.metrics import metric
@@ -13,6 +12,8 @@ import numpy as np
 from utils.dtw_metric import dtw,accelerated_dtw
 from utils.augmentation import run_augmentation,run_augmentation_single
 from utils.losses import mape_loss,mape1_loss,mase_loss, smape_loss
+from utils.tools import reconstruct_series_from_preds
+from tmp4 import diff_batch
 from torch.utils.tensorboard import SummaryWriter
 writer = SummaryWriter(log_dir=f'runs/long_term_forecasting_pred_len_7')
 
@@ -56,11 +57,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         total_loss = []
         self.model.eval()
         with torch.no_grad():
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(vali_loader):
-                if self.args.target_preprocess=="diff":
-                    batch_x=batch_x[:,:,:-1]
-                    target_original=batch_y[:,:,-1]
-                    batch_y=batch_y[:,:,:-1]
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark,_) in enumerate(vali_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float()
 
@@ -100,6 +97,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         train_data, train_loader = self._get_data(flag='train')
         vali_data, vali_loader = self._get_data(flag='val')
         test_data, test_loader = self._get_data(flag='test')
+        print(f"train size:{train_data[0][0].shape}, val size: {vali_data[0][0].shape} test size: {test_data[0][0].shape}")
 
 
         path = os.path.join(self.args.checkpoints, setting)
@@ -125,12 +123,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
             self.model.train()
             epoch_time = time.time()
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(train_loader):
-                if self.args.target_preprocess=="diff":
-                    batch_x=batch_x[:,:,:-1]
-                    target_original=batch_y[:,:,-1]
-                    batch_y=batch_y[:,:,:-1]
-                    
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark,_) in enumerate(train_loader):     
                 iter_count += 1
                 model_optim.zero_grad()
                 batch_x = batch_x.float().to(self.device)
@@ -218,6 +211,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
     def test(self, setting, test=0):
         test_data, test_loader = self._get_data(flag='test')
+        print(test_data[0][0].shape)
         if test:
             print('loading model')
             self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
@@ -229,19 +223,8 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             os.makedirs(folder_path)
 
         self.model.eval()
-
-        if self.args.target_preprocess=="diff":
-            test_data = TrimLastColumnDataset(test_data)
-            print(test_data[0].shape)
-          
-        
         with torch.no_grad():
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(test_loader):
-                if self.args.target_preprocess=="diff":
-                    batch_x=batch_x[:,:,:-1]
-                    target_original=batch_y[:,:,-1]
-                    batch_y=batch_y[:,:,:-1]
-
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark,batch_original_y) in enumerate(test_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
 
@@ -268,8 +251,10 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 f_dim = -1 if self.args.features == 'MS' else 0
                 outputs = outputs[:, -self.args.pred_len:, :]
                 batch_y = batch_y[:, -self.args.pred_len:, :].to(self.device)
+                batch_original_y=batch_original_y[:, -self.args.pred_len:].unsqueeze(-1).to(self.device)
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
+                batch_original_y=batch_original_y.detach().cpu().numpy()
                 if test_data.scale and self.args.inverse:
                     shape = outputs.shape
                     # 预处理outputs，使其适合inverse_transform方法
@@ -283,6 +268,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         processed_outputs = []
                         for i in range(outputs.shape[0]):
                             processed_sample = test_data.inverse_transform(outputs[i]).reshape(outputs[i].shape)
+                            len(test_data[0][0])
                             processed_outputs.append(processed_sample)
                         outputs = np.array(processed_outputs).reshape(shape)
                     
@@ -349,7 +335,12 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 dtw = np.array(dtw_list).mean()
             else:
                 dtw = -999
-                
+            #len(preds) preds[0].shape  len(trues) trues[0].shape len(batch_original_y) batch_original_y[0].shape
+            if self.args.target_preprocess=="diff" and self.args.inverse==True:
+                diff_batch_y=diff_batch(batch_original_y)
+                print(diff_batch_y[0], trues[0])
+                preds=reconstruct_series_from_preds(preds,batch_original_y)
+                trues=batch_original_y
             mae, mse, rmse, mape, mspe = metric(preds, trues)
             print(f'mse:{mse}, mae:{mae}, mape:{mape}, dtw:{dtw}')
             if test_data.scale and self.args.inverse:

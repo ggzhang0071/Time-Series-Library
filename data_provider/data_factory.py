@@ -64,7 +64,13 @@ def data_provider(args, flag):
     else:
         if args.data == 'm4':
             drop_last = False
+        if args.inverse:
+            scale=True
+        else:
+            scale=False
+        
         data_set = Data(
+            args=args,
             root_path=args.root_path,
             data_path=args.data_path,
             flag=flag,
@@ -74,7 +80,8 @@ def data_provider(args, flag):
             target_preprocess=args.target_preprocess,
             timeenc=timeenc,
             freq=freq,
-            seasonal_patterns=args.seasonal_patterns
+            seasonal_patterns=args.seasonal_patterns,
+            scale=scale
         )
         print(flag, len(data_set))
         data_loader = DataLoader(
