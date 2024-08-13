@@ -294,7 +294,7 @@ class Dataset_Custom(Dataset):
 
         # 是否对数据做尺度化
         if self.scale and self.target_preprocess=="diff" and self.flag=="test":
-            # 对test 数据做特殊数据增加处理
+            # test 对数据做增加 original_target
             self.scaler = StandardScaler()
             train_data = df_data[border1s[0]:border2s[0]]
             train_data=train_data.drop(columns=["target_original"])
@@ -327,6 +327,7 @@ class Dataset_Custom(Dataset):
         self.data_x = data[border1:border2]
         self.data_y = data[border1:border2]
         if self.target_preprocess=="diff" and self.flag=="test":
+            # 这个orginal——target 才有用，如果不做差分diff，做scale 倒是不一定
             self.original_target=original_target[border1:border2]
 
         if self.set_type == 0 and self.augmentation_ratio > 0:

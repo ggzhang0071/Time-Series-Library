@@ -144,12 +144,12 @@ def create_main():
         parser.add_argument('--discdtw', default=False, action="store_true", help="Discrimitive DTW warp preset augmentation")
         parser.add_argument('--discsdtw', default=False, action="store_true", help="Discrimitive shapeDTW warp preset augmentation")
         parser.add_argument('--extra_tag', type=str, default="", help="Anything extra")
-        parser.add_argument('--config', type=str, required=False, default="", help='Path to config file')
+        parser.add_argument('--config', type=str, required=False, default=None, help='Path to config file')
+
 
         parser.add_argument('--num_trial', type=int, default=2, help="optuna trial numbers")
-
         args = parser.parse_args()
-        if args.config!="":
+        if args.config:
             with open(args.config, 'r') as fid:
                 param_config=json.load(fid)
             if trial is not  None and param_config!=None:
@@ -161,6 +161,9 @@ def create_main():
                     elif param_type == 'int':
                         setattr(args, param_name, trial.suggest_int(param_name, attributes['low'], attributes['high']))
                     # 如果有其他类型，可以在这里添加处理逻辑
+        else:
+            print("No config file provided, proceeding without config.")
+
 
         # args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
         args.use_gpu = True if torch.cuda.is_available() else False
@@ -243,23 +246,48 @@ if __name__=="__main__":
     print("Optuna best value: ", study.best_value)  # 最优值
     print("Optuna runtime: ", optuna_time, "sec")
 
-    # CSV 文件路径
-    file_path = 'optuna_best_params.csv'
 
-    # 将最优参数和最优值保存到 CSV 文件中
+    # .sh 文件路径
+    file_path = 'optuna_best_params.sh'
+
+    # 获取最优参数
     best_params = study.best_params
     best_params['best_value'] = study.best_value  # 添加最优值到字典中
-    best_params["n_trials"]=n_trials
-    df = pd.DataFrame([best_params])
+    best_params["n_trials"] = n_trials
 
-    # 检查文件是否存在，如果存在则追加，否则创建新文件
-    if os.path.exists(file_path):
-        df.to_csv(file_path, mode='a', header=False, index=False)
+
+# .sh 文件路径
+file_path = 'optuna_best_params.sh'
+
+# 获取最优参数
+best_params = study.best_params
+best_params['best_value'] = study.best_value  # 添加最优值到字典中
+best_params["n_trials"] = n_trials
+
+# 检查文件是否存在并获取现有的 optuna_params 函数的数量
+if os.path.exists(file_path):
+    with open(file_path, 'r') as f:
+        content = f.read()
+    # 使用正则表达式查找现有的 optuna_params 函数数量
+    matches = re.findall(r'optuna_params_(\d+)', content)
+    if matches:
+        max_num = max([int(match) for match in matches])
+        func_num = max_num + 1
     else:
-        df.to_csv(file_path, index=False)  
+        func_num = 1
+else:
+    func_num = 1
 
+# 写入 .sh 文件
+with open(file_path, 'a') as f:  # 'a' 模式用于追加到文件末尾
+    f.write("\n")
+    f.write(f"optuna_params_{func_num}() {{\n")
+    for key, value in best_params.items():
+        if isinstance(value, str):
+            # 如果值是字符串，则加上双引号
+            f.write(f"    export {key}=\"{value}\"\n")
+        else:
+            f.write(f"    export {key}={value}\n")
+    f.write("}\n")
 
-
-
- 
-
+print(f"Saved best parameters as optuna_params_{func_num} to {file_path}")

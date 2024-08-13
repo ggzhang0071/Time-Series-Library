@@ -1339,3 +1339,120 @@ mse:3415.997076023392, mae:41.014619883040936, mape:0.06170655843960909, dtw:-99
 long_term_forecast_beigang_756_15_iTransformer_custom                 _ftMS_sl756_ll60_pl15                 _dm49_nh8_el3_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
 mse:7146.498599439776, mae:59.91260504201681, mape:0.08887915343067936, dtw:-999
 
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm38_nh8_el3_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:4696.917516218721, mae:46.78035217794254, mape:0.07139375666298473, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm95_nh8_el6_dl4                 _df380_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:5157.615384615385, mae:47.421052631578945, mape:0.07184615119754548, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm95_nh8_el6_dl4                 _df380_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:5182.533063427801, mae:47.582995951417004, mape:0.0720920890867294, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm95_nh8_el6_dl4                 _df380_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:5155.596491228071, mae:47.41025641025641, mape:0.07182946132790141, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm96_nh8_el5_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:6236.772575250836, mae:59.541806020066886, mape:0.0873876929485073, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm64_nh8_el4_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:6760.586113002042, mae:60.35057862491491, mape:0.0884084402154998, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm79_nh8_el2_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:8780.928304705003, mae:68.731142643764, mape:0.10207849666537458, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm16_nh8_el6_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:2000.4198418404026, mae:33.09705248023005, mape:0.05029288881035622, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm86_nh8_el6_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:5975.521239954076, mae:56.83237657864524, mape:0.08504157319391004, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm25_nh8_el6_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:3983.7699849170435, mae:47.245098039215684, mape:0.07006561619141818, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm15_nh8_el6_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:2950.3221153846152, mae:40.27403846153846, mape:0.05910496843254758, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm48_nh8_el2_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:5187.3673740053055, mae:53.30769230769231, mape:0.07861706290595445, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm63_nh8_el4_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:5609.489203778678, mae:54.98178137651822, mape:0.0812797581707685, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm14_nh8_el4_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:3256.8572307692307, mae:42.62092307692308, mape:0.06357594084831232, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm39_nh8_el5_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:3411.136237256719, mae:43.44578313253012, mape:0.0642388652527262, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm12_nh8_el6_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:2129.0526315789475, mae:36.55668016194332, mape:0.05360967689421911, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm30_nh8_el5_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:5322.603756708408, mae:54.09928443649374, mape:0.07926784454298319, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm28_nh8_el6_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:4857.091628959276, mae:49.95814479638009, mape:0.07138976389353185, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm40_nh8_el3_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:4872.056304520222, mae:48.54797779540048, mape:0.07192464920865484, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm20_nh8_el5_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:3402.4475524475524, mae:42.9030969030969, mape:0.06203903760259574, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm37_nh8_el6_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:3363.363482671175, mae:43.524091293322066, mape:0.06469236922640002, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm51_nh8_el3_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:5503.653235653235, mae:55.81074481074481, mape:0.08204532138962946, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm22_nh8_el5_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:4408.77570093458, mae:49.0431344356578, mape:0.07314532590491914, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm60_nh8_el6_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:2351.836032388664, mae:35.0748987854251, mape:0.051194871425718824, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm70_nh8_el3_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:6605.6510989010985, mae:58.97161172161172, mape:0.0862235687873805, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm13_nh8_el6_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:2712.8, mae:37.93025641025641, mape:0.054070363950718965, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm12_nh8_el6_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:2113.675480769231, mae:36.25480769230769, mape:0.05402194106499095, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm33_nh8_el5_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:6228.901442307692, mae:57.65865384615385, mape:0.08530610757909042, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm20_nh8_el6_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:3425.936965811966, mae:44.039529914529915, mape:0.06355336502439922, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm18_nh8_el5_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:3445.4501424501423, mae:44.274453941120605, mape:0.06504042799776437, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm44_nh8_el6_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:5056.175213675214, mae:53.91025641025641, mape:0.07994113407788749, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm26_nh8_el4_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:2409.2773564463705, mae:38.43445287107259, mape:0.05621359190019674, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm33_nh8_el6_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:4968.5034965034965, mae:52.59052059052059, mape:0.07804499277186698, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm12_nh8_el5_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:2451.5128205128203, mae:39.13068651778329, mape:0.058889252088902756, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm99_nh8_el5_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:7141.592471358429, mae:65.60392798690671, mape:0.09711574494908247, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm17_nh8_el5_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:2800.214804063861, mae:41.04644412191582, mape:0.061906988307359107, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm12_nh8_el6_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:1917.8391608391607, mae:34.40909090909091, mape:0.05156310811919621, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm25_nh8_el5_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:4789.499676793795, mae:52.48093083387201, mape:0.07797959454403543, dtw:-999
+
+long_term_forecast_beigang_756_13_iTransformer_custom                 _ftMS_sl756_ll60_pl13                 _dm17_nh8_el6_dl4                 _df56_expand2_dc4_fc3_ebtimeF_dtTrue_Exp_0  
+mse:3334.693732193732, mae:43.984330484330485, mape:0.06633547710062879, dtw:-999
+
