@@ -21,4 +21,14 @@ optuna_params_3() {
     export batch_size=71
 }
 
+optuna_params_4() {
+    export best_vali_loss=1.970313549041748
+    export num_trial=1
+    export pred_len=5
+}
 
+optuna_params_5() {
+    export best_vali_loss=1.970313549041748
+    export num_trial=1
+    export pred_len=5
+}

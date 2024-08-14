@@ -293,7 +293,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
                 preds.append(pred)
                 trues.append(true)
-                """if i % 2 == 1:
+                if i % 2 == 1:
                     input = batch_x.detach().cpu().numpy()
                     if test_data.scale and self.args.inverse:
                         shape = input.shape 
@@ -304,7 +304,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-                    visual(gt, self.args.pred_len, pd, os.path.join(folder_path, str(i) + '.pdf'))"""
+                    visual(gt, self.args.pred_len, pd, os.path.join(folder_path, str(i) + '.pdf'))
         if not preds:  
             print("Preds is an empty list, the trial is failed")  
             
@@ -334,15 +334,16 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                     dtw_list.append(d)
                 dtw = np.array(dtw_list).mean()
             else:
-                dtw = -999
+                dtw = -999 
             #len(preds) preds[0].shape  len(trues) trues[0].shape len(batch_original_y) batch_original_y[0].shape
             if self.args.target_preprocess=="diff" and self.args.inverse==True:
-                diff_batch_y=diff_batch(batch_original_y)
-                print(diff_batch_y[0], trues[0])
+                #diff_batch_y=diff_batch(batch_original_y[0,:,-1])
+                #print(trues[0,:,-1]-diff_batch_y)
+                #print(diff_batch_y[0], trues[0])
                 preds=reconstruct_series_from_preds(preds,batch_original_y)
                 trues=batch_original_y
-            mae, mse, rmse, mape, mspe = metric(preds, trues)
-            print(f'mse:{mse}, mae:{mae}, mape:{mape}, dtw:{dtw}')
+            mae, mse, rmse, mape, mspe,r2,r21= metric(preds, trues)
+            print(f'mse:{mse}, mae:{mae}, mape:{mape}, r2:{r2},r2_score:{r21}, dtw:{dtw}')
             if test_data.scale and self.args.inverse:
                 f = open("result_long_term_forecast_inverse.txt", 'a')
             else:

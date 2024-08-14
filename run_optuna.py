@@ -21,20 +21,15 @@ def update_args_(args, params):
   dargs = vars(args)
   dargs.update(params)
 
-def create_main():
-    def main(trial):
-        fix_seed = 2021
-        random.seed(fix_seed)
-        torch.manual_seed(fix_seed)
-        np.random.seed(fix_seed)
-        parser = argparse.ArgumentParser(description='TimesNet')
-        # basic config
+def parse_args():
+        parser = argparse.ArgumentParser(description='Experiment with Optuna integration')
+            # basic config
         parser.add_argument('--task_name', type=str, required=True, default='long_term_forecast',
-                            help='task name, options:[long_term_forecast, short_term_forecast, imputation, classification, anomaly_detection]')
+                                help='task name, options:[long_term_forecast, short_term_forecast, imputation, classification, anomaly_detection]')
         parser.add_argument('--is_training', type=int, required=True, default=1, help='status')
         parser.add_argument('--model_id', type=str, required=True, default='test', help='model id')
         parser.add_argument('--model', type=str, required=True, default='Autoformer',
-                            help='model name, options: [Autoformer, Transformer, TimesNet]')
+                                help='model name, options: [Autoformer, Transformer, TimesNet]')
 
         # data loader
         parser.add_argument('--data', type=str, required=True, default='ETTm1', help='dataset type')
@@ -146,10 +141,17 @@ def create_main():
         parser.add_argument('--extra_tag', type=str, default="", help="Anything extra")
         parser.add_argument('--config', type=str, required=False, default=None, help='Path to config file')
 
-
+        ## opunta 参数
         parser.add_argument('--num_trial', type=int, default=2, help="optuna trial numbers")
-        args = parser.parse_args()
-        if args.config:
+        return parser.parse_args()
+
+def main(args):
+    def objective(trial):
+        fix_seed = 2021
+        random.seed(fix_seed)
+        torch.manual_seed(fix_seed)
+        np.random.seed(fix_seed)
+        if args.config!='None':
             with open(args.config, 'r') as fid:
                 param_config=json.load(fid)
             if trial is not  None and param_config!=None:
@@ -232,13 +234,14 @@ def create_main():
             exp.test(setting, test=1)
             torch.cuda.empty_cache()
         return vali_loss
-    return main
+    return objective
 if __name__=="__main__":
-    n_trials=100
+    args=parse_args()
     start_time=time.time()
     study = optuna.create_study(direction='minimize')
-    objective =create_main()
-    study.optimize(objective, n_trials=n_trials)
+    objective =main(args)
+    study.optimize(lambda trial: objective(trial), n_trials=args.num_trial)
+
     end_time=time.time()
     optuna_time=end_time-start_time  
 
@@ -247,22 +250,13 @@ if __name__=="__main__":
     print("Optuna runtime: ", optuna_time, "sec")
 
 
-    # .sh 文件路径
     file_path = 'optuna_best_params.sh'
-
     # 获取最优参数
     best_params = study.best_params
-    best_params['best_value'] = study.best_value  # 添加最优值到字典中
-    best_params["n_trials"] = n_trials
-
-
-    # .sh 文件路径
-    file_path = 'optuna_best_params.sh'
-
-    # 获取最优参数
-    best_params = study.best_params
-    best_params['best_value'] = study.best_value  # 添加最优值到字典中
-    best_params["n_trials"] = n_trials
+    best_params['best_vali_loss'] = study.best_value  # 添加最优值到字典中
+    best_params["num_trial"] = args.num_trial
+    best_params["pred_len"]=args.pred_len
+    print(f"the best parameter is: {best_params}")
 
     # 检查文件是否存在并获取现有的 optuna_params 函数的数量
     if os.path.exists(file_path):

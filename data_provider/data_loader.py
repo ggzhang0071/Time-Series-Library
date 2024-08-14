@@ -12,6 +12,8 @@ from data_provider.uea import subsample, interpolate_missing, Normalizer
 from sktime.datasets import load_from_tsfile_to_dataframe
 import warnings
 from utils.augmentation import run_augmentation_single
+from utils.tools import diff_batch
+
 from sklearn.impute import KNNImputer
 
 warnings.filterwarnings('ignore')
@@ -241,8 +243,7 @@ class Dataset_Custom(Dataset):
         self.__read_data__()
 
     def __read_data__(self):
-        df_raw = pd.read_csv(os.path.join(self.root_path,
-                                          self.data_path))
+        df_raw = pd.read_csv(os.path.join(self.root_path,self.data_path))
         if df_raw.isnull().values.any():
             imputer = KNNImputer(n_neighbors=10)
             for column in df_raw.columns:
@@ -334,21 +335,7 @@ class Dataset_Custom(Dataset):
             self.data_x, self.data_y, augmentation_tags = run_augmentation_single(self.data_x, self.data_y, self.args)
 
         self.data_stamp = data_stamp
-
-        """index=0
-        s_begin = index 
-        s_end = s_begin + self.seq_len
-        r_begin = s_end - self.label_len
-        r_end = r_begin + self.label_len + self.pred_len
-        if self.target_preprocess=="diff" and self.flag=="test":
-            target_original=self.original_target.values[r_begin:r_end]
-        else:
-            # target_original 只是为了占位
-            target_original=torch.zeros((r_end-r_begin))
-        seq_x = self.data_x[s_begin:s_end]
-        seq_y = self.data_y[r_begin:r_end]
-        seq_x_mark = self.data_stamp[s_begin:s_end]
-        seq_y_mark = self.data_stamp[r_begin:r_end]"""
+        
 
 
     def __getitem__(self, index):
@@ -356,13 +343,18 @@ class Dataset_Custom(Dataset):
         s_end = s_begin + self.seq_len
         r_begin = s_end - self.label_len
         r_end = r_begin + self.label_len + self.pred_len
-        if self.target_preprocess=="diff" and self.flag=="test" and self.scale:
-            target_original=self.original_target.values[r_begin:r_end]
-        else:
-            # target_original 只是为了占位
-            target_original=torch.zeros((r_end-r_begin))
+
         seq_x = self.data_x[s_begin:s_end]
         seq_y = self.data_y[r_begin:r_end]
+
+        if self.target_preprocess=="diff" and self.flag=="test" and self.scale:
+            target_original=self.original_target.values[r_begin:r_end]
+            """# 测试训练的数据和原来的数据是不是相同的
+            y_shift=diff_batch(target_original)
+            print(y_shift[:5],self.scaler.inverse_transform(seq_y[:5])[:,-1])"""
+        else:
+            target_original=torch.zeros((r_end-r_begin))
+
         seq_x_mark = self.data_stamp[s_begin:s_end]
         seq_y_mark = self.data_stamp[r_begin:r_end]
         return seq_x, seq_y, seq_x_mark, seq_y_mark, target_original

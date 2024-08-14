@@ -16,12 +16,10 @@ task_name="long_term_forecast"
 source optuna_best_params.sh
 
 # 检查是否传递了参数组选择
-if [ "$1" == "1" ]; then
-    optuna_params_1
-    config_path=""
-elif [ "$1" == "2" ]; then
-    optuna_params_2
-    config_path=""
+if [[ "$1" =~ ^[0-9]+$ ]]; then
+    "optuna_params_$1"
+    config_path=None
+    num_trial=1
 else
     echo "Using the optuna for hypterparameter searing"
     d_model=14
@@ -29,15 +27,14 @@ else
     learning_rate=0.007
     batch_size=120
     config_path="./scripts/beigang_script/optuna_opt/param_config_${task_name}_${model_name}.json"
+    num_trial=2
 fi
 
 
-
-#3 5 7 9 11 13 15
-for pred_len in 13
+for pred_len in 5 7 9 11 13 15
 do 
 # run_optuna.py  run.py  
- python   run_optuna.py \
+nohup python    run_optuna.py \
   --task_name  $task_name \
   --is_training 1 \
   --root_path $root_path \
@@ -70,5 +67,6 @@ do
   --inverse \
   --target $target \
   --config "$config_path" \
+  --num_trial $num_trial \
   --loss 'MSE'  
 done 

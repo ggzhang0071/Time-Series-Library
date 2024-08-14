@@ -128,18 +128,20 @@ def reconstruct_series_from_preds(preds_shift, batch_original_y):
     return pred_original
 
 def diff_batch(batch_original_y):
-    diff_batch_y = []
-    for i in range(len(batch_original_y)):
-        y = batch_original_y[i]
-        # 将 NumPy 数组转换为 Pandas Series
-        y_series = pd.Series(y.flatten())
-        # 计算差分：shift后减去原值，然后除以原值
-        y_shift = y_series.shift(-1) / y_series - 1
-        # 将结果转换为 NumPy 数组并重新调整为形状 (13, 1)
-        y_shift_np = y_shift.values.reshape(-1, 1)
-        # 将结果添加到 diff_batch_y 列表中
-        diff_batch_y.append(y_shift_np)
-    return diff_batch_y
+    if isinstance(batch_original_y,list):
+        diff_batch_y = []
+        for i in range(len(batch_original_y)):
+            y = batch_original_y[i]
+            y_series = pd.Series(y.flatten())
+            y_shift = y_series.shift(-1) / y_series - 1
+            y_shift_np = y_shift.values.reshape(-1, 1)
+            diff_batch_y.append(y_shift_np)
+        return diff_batch_y
+    elif isinstance(batch_original_y,np.ndarray):
+            y=batch_original_y
+            y_series = pd.Series(y)
+            y_shift = y_series.shift(-1) / y_series - 1
+            return y_shift
 
 
 if __name__=="__main__":
