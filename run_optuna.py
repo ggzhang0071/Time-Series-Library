@@ -207,10 +207,7 @@ def main(args):
             for ii in range(args.itr):
                 # setting record of experiments
                 exp = Exp(args)  # set experiments
-                setting = f"{args.task_name}_{args.model_id}_{args.model}_{args.data}\
-                 _ft{args.features}_sl{args.seq_len}_ll{args.label_len}_pl{args.pred_len}\
-                 _dm{args.d_model}_nh{args.n_heads}_el{args.e_layers}_dl{args.d_layers}\
-                 _df{args.d_ff}_expand{args.expand}_dc{args.d_conv}_fc{args.factor}_eb{args.embed}_dt{args.distil}_{args.des}_{ii}"
+                setting = f"{args.task_name}_{args.model_id}_{args.model}_{args.data}_ft{args.features}_sl{args.seq_len}_ll{args.label_len}_pl{args.pred_len}_dm{args.d_model}_nh{args.n_heads}_el{args.e_layers}_dl{args.d_layers}_df{args.d_ff}_expand{args.expand}_dc{args.d_conv}_fc{args.factor}_eb{args.embed}_dt{args.distil}_{args.des}_{ii}"
 
 
                 print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
@@ -223,10 +220,7 @@ def main(args):
                 torch.cuda.empty_cache()
         else:
             ii = 0
-            setting = f"{args.task_name}_{args.model_id}_{args.model}_{args.data}_ft{args.features}\
-                _sl{args.seq_len}_ll{args.label_len}_pl{args.pred_len}_dm{args.d_model}_nh{args.n_heads}\
-                    _el{args.e_layers}_dl{args.d_layers}_df{args.d_ff}_expand{args.expand}_dc{args.d_conv}\
-                        _fc{args.factor}_eb{args.embed}_dt{args.distil}_{args.des}_{ii}"
+            setting = f"{args.task_name}_{args.model_id}_{args.model}_{args.data}_ft{args.features}_sl{args.seq_len}_ll{args.label_len}_pl{args.pred_len}_dm{args.d_model}_nh{args.n_heads}_el{args.e_layers}_dl{args.d_layers}_df{args.d_ff}_expand{args.expand}_dc{args.d_conv}_fc{args.factor}_eb{args.embed}_dt{args.distil}_{args.des}_{ii}"
 
 
             exp = Exp(args)  # set experiments
@@ -256,7 +250,7 @@ if __name__=="__main__":
     best_params['best_vali_loss'] = study.best_value  # 添加最优值到字典中
     best_params["num_trial"] = args.num_trial
     best_params["pred_len"]=args.pred_len
-    print(f"the best parameter is: {best_params}")
+    print(f"The best parameter is: {best_params}")
 
     # 检查文件是否存在并获取现有的 optuna_params 函数的数量
     if os.path.exists(file_path):

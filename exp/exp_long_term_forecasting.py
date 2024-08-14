@@ -211,7 +211,6 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
     def test(self, setting, test=0):
         test_data, test_loader = self._get_data(flag='test')
-        print(test_data[0][0].shape)
         if test:
             print('loading model')
             self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth')))
@@ -291,20 +290,23 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 pred = outputs
                 true = batch_y
 
-                preds.append(pred)
-                trues.append(true)
-                if i % 2 == 1:
-                    input = batch_x.detach().cpu().numpy()
-                    if test_data.scale and self.args.inverse:
-                        shape = input.shape 
-                        if shape[0] == 1:
-                            input = test_data.inverse_transform(input.squeeze(0)).reshape(shape)
-                        else:
-                            input = test_data.inverse_transform(input).reshape(shape)
-                        
-                    gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
-                    pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-                    visual(gt, self.args.pred_len, pd, os.path.join(folder_path, str(i) + '.pdf'))
+            preds.append(pred)
+            trues.append(true)
+            if i % 2 == 1:
+                input = batch_x.detach().cpu().numpy()
+                if test_data.scale and self.args.inverse:
+                    shape = input.shape  # e.g., (batch_size, seq_length, feature_dim)
+                    # 将 input 展平为二维数组
+                    input_reshaped = input.reshape(-1, shape[-1])  # shape: (batch_size * seq_length, feature_dim)
+                    # 逆变换
+                    input_transformed = test_data.inverse_transform(input_reshaped)
+                    # 将 input 恢复到原始形状
+                    input = input_transformed.reshape(shape)
+                
+                gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
+                pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
+                visual(gt, self.args.pred_len, pd, os.path.join(folder_path, str(i) + '.pdf'))
+
         if not preds:  
             print("Preds is an empty list, the trial is failed")  
             
@@ -350,7 +352,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 f = open("result_long_term_forecast.txt", 'a')
 
             f.write(setting + "  \n")
-            f.write(f'mse:{mse}, mae:{mae}, mape:{mape}, dtw:{dtw}')
+            f.write(f'mse:{mse}, mae:{mae}, mape:{mape}, r2:{r2}, dtw:{dtw}')
             f.write('\n')
             f.write('\n')
             f.close()
