@@ -20,21 +20,23 @@ if [[ "$1" =~ ^[0-9]+$ ]]; then
     "optuna_params_$1"
     config_path=None
     num_trial=1
+    train_epochs=20
 else
     echo "Using the optuna for hypterparameter searing"
     d_model=14
-    e_layers=5
-    learning_rate=0.007
+    e_layers=5 
+    learning_rate=0.007 
     batch_size=120
     config_path="./scripts/beigang_script/optuna_opt/param_config_${task_name}_${model_name}.json"
-    num_trial=2
+    num_trial=100
+    train_epochs=100
 fi
 
 
-for pred_len in 5 7 9 11 13 15
+for pred_len in   9  11 13
 do 
 # run_optuna.py  run.py  
- python -m pdb    run_optuna.py \
+ python    run_optuna.py \
   --task_name  $task_name \
   --is_training 1 \
   --root_path $root_path \
@@ -54,7 +56,7 @@ do
   --c_out 1 \
   --des 'Exp' \
   --freq 'd'\
-  --train_epochs 10 \
+  --train_epochs $train_epochs \
   --dropout 0.1 \
   --d_model $d_model \
   --d_ff $((d_model*4)) \
@@ -64,7 +66,6 @@ do
   --learning_rate $learning_rate \
   --itr 1   \
   --patience 10 \
-  --inverse \
   --target $target \
   --config "$config_path" \
   --num_trial $num_trial \

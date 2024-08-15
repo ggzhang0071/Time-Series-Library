@@ -83,9 +83,20 @@ def visual(true, pred_len, preds=None, name='./pic/test.pdf'):
     Results visualization
     """
     plt.figure()
-    plt.plot(true[-pred_len*2:], label='GroundTruth', linewidth=2)
+    plt.plot(true[-pred_len*4:], label='GroundTruth', linewidth=2)
     if preds is not None:
-        plt.plot(preds[-pred_len*2:], label='Prediction', linewidth=2)
+        plt.plot(preds[-pred_len*4:], label='Prediction', linewidth=2)
+    plt.legend()
+    plt.savefig(name, bbox_inches='tight')
+
+def visual_prediction(true, preds=None,  name='./pic/test.pdf'):
+    """
+    Results visualization
+    """
+    plt.figure()
+    plt.plot(true, label='GroundTruth', linewidth=2)
+    if preds is not None:
+        plt.plot(preds, label='Prediction', linewidth=2)
     plt.legend()
     plt.savefig(name, bbox_inches='tight')
 

@@ -59,6 +59,10 @@ class mape_loss(nn.Module):
         :param mask: 0/1 mask. Shape: batch, time
         :return: Loss value
         """
+        # 假设 mask 需要和 target/forecast 形状匹配
+        if mask.shape != target.shape:
+            mask = mask[:, :9, :1]  # 调整维度以匹配 target
+
         weights = divide_no_nan(mask, target)
         return t.mean(t.abs((forecast - target) * weights))
 
@@ -100,3 +104,15 @@ class mase_loss(nn.Module):
         masep = t.mean(t.abs(insample[:, freq:] - insample[:, :-freq]), dim=1)
         masked_masep_inv = divide_no_nan(mask, masep[:, None])
         return t.mean(t.abs(target - forecast) * masked_masep_inv)
+    
+if __name__=="__main__":
+    # 示例数据
+    forecast = t.tensor([[110.0, 120.0, 130.0], [210.0, 220.0, 230.0]])
+    target = t.tensor([[100.0, 120.0, 0.0], [200.0, 0.0, 230.0]])
+    mask = t.tensor([[1.0, 1.0, 0.0], [1.0, 0.0, 1.0]])  # 忽略了第三个时间步长和第二个batch的第二个时间步长
+
+    # 初始化并计算loss
+    criterion = mape_loss()
+    loss = criterion(None, 1, forecast, target, mask)
+
+    print(loss)

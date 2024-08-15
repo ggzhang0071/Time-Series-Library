@@ -1,6 +1,6 @@
 from data_provider.data_factory import data_provider
 from exp.exp_basic import Exp_Basic
-from utils.tools import EarlyStopping, adjust_learning_rate, visual
+from utils.tools import EarlyStopping, adjust_learning_rate, visual,visual_prediction
 from utils.metrics import metric
 import torch
 import torch.nn as nn
@@ -13,14 +13,14 @@ from utils.dtw_metric import dtw,accelerated_dtw
 from utils.augmentation import run_augmentation,run_augmentation_single
 from utils.losses import mape_loss,mape1_loss,mase_loss, smape_loss
 from utils.tools import reconstruct_series_from_preds
-from tmp4 import diff_batch
+from utils.tools import diff_batch
 from torch.utils.tensorboard import SummaryWriter
 writer = SummaryWriter(log_dir=f'runs/long_term_forecasting_pred_len_7')
 
 
 warnings.filterwarnings('ignore')
 
-def _select_criterion(self, loss_name='MSE'):
+def _select_criterion(loss_name='MSE'):
     if loss_name == 'MSE':
         return nn.MSELoss()
     elif loss_name == 'MAPE':
@@ -32,6 +32,7 @@ def _select_criterion(self, loss_name='MSE'):
     elif loss_name == 'SMAPE':
         return smape_loss()
 
+print("Loading Exp_Long_Term_Forecast module...")
 
 class Exp_Long_Term_Forecast(Exp_Basic):
     def __init__(self, args):
@@ -97,7 +98,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         train_data, train_loader = self._get_data(flag='train')
         vali_data, vali_loader = self._get_data(flag='val')
         test_data, test_loader = self._get_data(flag='test')
-        print(f"train size:{train_data[0][0].shape}, val size: {vali_data[0][0].shape} test size: {test_data[0][0].shape}")
+        #print(f"train size:{train_data[0][0].shape}, val size: {vali_data[0][0].shape} test size: {test_data[0][0].shape}")
 
 
         path = os.path.join(self.args.checkpoints, setting)
@@ -162,10 +163,10 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 
 
                 if (i + 1) % 100 == 0:
-                    print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
+                    #print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
                     speed = (time.time() - time_now) / iter_count
                     left_time = speed * ((self.args.train_epochs - epoch) * train_steps - i)
-                    print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time))
+                    #print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time))
                     iter_count = 0
                     time_now = time.time()
 
@@ -183,13 +184,13 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         else:
                             print(f'No gradient for {name} at epoch {epoch}')
 
-            print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
+            #print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
             vali_loss = self.vali(vali_data, vali_loader, criterion)
             test_loss = self.vali(test_data, test_loader, criterion)
 
-            print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f}, Vali Loss: {3:.7f}, Test Loss: {4:.7f}".format(
-                epoch + 1, train_steps, train_loss, vali_loss, test_loss))
+            #print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f}, Vali Loss: {3:.7f}, Test Loss: {4:.7f}".format(
+            #    epoch + 1, train_steps, train_loss, vali_loss, test_loss))
             
             writer.add_scalar('Loss/train', train_loss, epoch)
             writer.add_scalar('Loss/vali', vali_loss, epoch)
@@ -223,7 +224,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
         self.model.eval()
         with torch.no_grad():
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark,batch_original_y) in enumerate(test_loader):
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_original_y) in enumerate(test_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
 
@@ -265,8 +266,8 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                     else:
                         # 如果outputs是三维且无法压缩为二维，逐个处理每个样本
                         processed_outputs = []
-                        for i in range(outputs.shape[0]):
-                            processed_sample = test_data.inverse_transform(outputs[i]).reshape(outputs[i].shape)
+                        for ii in range(outputs.shape[0]):
+                            processed_sample = test_data.inverse_transform(outputs[ii]).reshape(outputs[ii].shape)
                             len(test_data[0][0])
                             processed_outputs.append(processed_sample)
                         outputs = np.array(processed_outputs).reshape(shape)
@@ -278,8 +279,8 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         batch_y = test_data.inverse_transform(batch_y).reshape(shape)
                     else:
                         processed_batch_y = []
-                        for i in range(batch_y.shape[0]):
-                            processed_sample = test_data.inverse_transform(batch_y[i]).reshape(batch_y[i].shape)
+                        for kk in range(batch_y.shape[0]):
+                            processed_sample = test_data.inverse_transform(batch_y[kk]).reshape(batch_y[kk].shape)
                             processed_batch_y.append(processed_sample)
                         batch_y = np.array(processed_batch_y).reshape(shape)
 
@@ -292,7 +293,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
             preds.append(pred)
             trues.append(true)
-            if i % 2 == 1:
+            if i >=0:
                 input = batch_x.detach().cpu().numpy()
                 if test_data.scale and self.args.inverse:
                     shape = input.shape  # e.g., (batch_size, seq_length, feature_dim)
@@ -305,18 +306,17 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 
                 gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
                 pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-                visual(gt, self.args.pred_len, pd, os.path.join(folder_path, str(i) + '.pdf'))
+                visual(gt, self.args.pred_len, pd, os.path.join(folder_path,  str(i) + '.pdf'))
 
         if not preds:  
             print("Preds is an empty list, the trial is failed")  
-            
         else:
             preds = np.array(preds)
             trues = np.array(trues)
-            print('test shape:', preds.shape, trues.shape)
+            #print('test shape:', preds.shape, trues.shape)
             preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
             trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
-            print('test shape:', preds.shape, trues.shape)
+            #print('test shape:', preds.shape, trues.shape)
 
             # result save
             folder_path = './results/' + setting + '/'
@@ -339,12 +339,15 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 dtw = -999 
             #len(preds) preds[0].shape  len(trues) trues[0].shape len(batch_original_y) batch_original_y[0].shape
             if self.args.target_preprocess=="diff" and self.args.inverse==True:
-                #diff_batch_y=diff_batch(batch_original_y[0,:,-1])
-                #print(trues[0,:,-1]-diff_batch_y)
-                #print(diff_batch_y[0], trues[0])
+                """#测试做差分的数据和原来的数据是不是一样
+                diff_batch_y=diff_batch(batch_original_y[0,:,-1])
+                print(trues[0,:,-1]-diff_batch_y)"""
+               
                 preds=reconstruct_series_from_preds(preds,batch_original_y)
                 trues=batch_original_y
-            mae, mse, rmse, mape, mspe,r2,r21= metric(preds, trues)
+            mae, mse, rmse, mape, mspe, r2,r21= metric(preds, trues)
+            visual_prediction(trues[-1], preds[-1], os.path.join(folder_path, "pred_len_"+str(self.args.pred_len) + '.pdf'))
+
             print(f'mse:{mse}, mae:{mae}, mape:{mape}, r2:{r2},r2_score:{r21}, dtw:{dtw}')
             if test_data.scale and self.args.inverse:
                 f = open("result_long_term_forecast_inverse.txt", 'a')
@@ -352,7 +355,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 f = open("result_long_term_forecast.txt", 'a')
 
             f.write(setting + "  \n")
-            f.write(f'mse:{mse}, mae:{mae}, mape:{mape}, r2:{r2}, dtw:{dtw}')
+            f.write(f'mse:{mse}, mae:{mae}, mape:{mape}, r2:{r2},dtw:{dtw}')
             f.write('\n')
             f.write('\n')
             f.close()
@@ -361,3 +364,5 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             np.save(folder_path + 'pred.npy', preds)
             np.save(folder_path + 'true.npy', trues)
         return  
+
+

@@ -4,6 +4,9 @@ import pandas as pd
 import glob
 import re
 import torch
+import sys
+sys.path.append('/git/Time-Series-Library')
+
 from torch.utils.data import Dataset, DataLoader
 from sklearn.preprocessing import StandardScaler
 from utils.timefeatures import time_features
@@ -250,10 +253,10 @@ class Dataset_Custom(Dataset):
                 if column != 'date':  # 排除不需要插值的时间戳列
                     df_raw[[column]] = imputer.fit_transform(df_raw[[column]])
    
-        if self.target_preprocess=="diff" and self.flag=="test" and self.scale:  
+        """if self.target_preprocess=="diff" and self.flag=="test" and self.scale:  
             # 这里限制test是为了把 在train, val 中代码不出现不出现 高维信息， scale 做约束，是为了限制后续用不用inverse
             y=df_raw[self.target]
-            df_raw["target_original"]=y
+            #df_raw["target_original"]=y
             # 这的diff 是来自于算法的0
             y_diff=y.shift(-1)/y -1
             df_raw[self.target]=y_diff
@@ -262,8 +265,8 @@ class Dataset_Custom(Dataset):
             cols.remove(self.target)
             cols.remove("target_original")
             cols.remove('date')
-            df_raw = df_raw[['date'] + cols +[self.target]+["target_original"]]
-        elif self.target_preprocess=="diff":
+            df_raw = df_raw[['date'] + cols +[self.target]+["target_original"]]"""
+        if self.target_preprocess=="diff":
             y=df_raw[self.target]
             y_diff=y.shift(-1)/y -1 
             df_raw[self.target]=y_diff
@@ -294,17 +297,16 @@ class Dataset_Custom(Dataset):
             df_data = df_raw[[self.target]]
 
         # 是否对数据做尺度化
-        if self.scale and self.target_preprocess=="diff" and self.flag=="test":
+        self.scaler = StandardScaler()
+        """if self.scale and self.target_preprocess=="diff" and self.flag=="test":
             # test 对数据做增加 original_target
-            self.scaler = StandardScaler()
             train_data = df_data[border1s[0]:border2s[0]]
             train_data=train_data.drop(columns=["target_original"])
             original_target=df_data["target_original"]
             df_data=df_data.drop(columns=["target_original"])
             self.scaler.fit(train_data.values)
-            data = self.scaler.transform(df_data.values)
-        elif self.scale:
-            self.scaler = StandardScaler()
+            data = self.scaler.transform(df_data.values)"""
+        if self.scale:
             train_data = df_data[border1s[0]:border2s[0]]
             self.scaler.fit(train_data.values)
             data = self.scaler.transform(df_data.values)
@@ -329,14 +331,32 @@ class Dataset_Custom(Dataset):
         self.data_y = data[border1:border2]
         if self.target_preprocess=="diff" and self.flag=="test":
             # 这个orginal——target 才有用，如果不做差分diff，做scale 倒是不一定
-            self.original_target=original_target[border1:border2]
+            self.test_original_target=y[border1:border2]
 
         if self.set_type == 0 and self.augmentation_ratio > 0:
             self.data_x, self.data_y, augmentation_tags = run_augmentation_single(self.data_x, self.data_y, self.args)
 
         self.data_stamp = data_stamp
         
+        index=0
+        s_begin = index 
+        s_end = s_begin + self.seq_len
+        r_begin = s_end - self.label_len
+        r_end = r_begin + self.label_len + self.pred_len
 
+        seq_x = self.data_x[s_begin:s_end]
+        seq_y = self.data_y[r_begin:r_end]
+
+        if self.target_preprocess=="diff" and self.flag=="test" and self.scale:
+            test_original_target=self.test_original_target.values[r_begin:r_end]
+            """# 测试训练的数据和原来的数据是不是相同的
+            y_shift=diff_batch(test_original_target)
+            print(y_shift[:5],self.scaler.inverse_transform(seq_y[:5])[:,-1])"""
+        else:
+            test_original_target=torch.zeros((r_end-r_begin))
+
+        seq_x_mark = self.data_stamp[s_begin:s_end]
+        seq_y_mark = self.data_stamp[r_begin:r_end]
 
     def __getitem__(self, index):
         s_begin = index 
@@ -348,16 +368,16 @@ class Dataset_Custom(Dataset):
         seq_y = self.data_y[r_begin:r_end]
 
         if self.target_preprocess=="diff" and self.flag=="test" and self.scale:
-            target_original=self.original_target.values[r_begin:r_end]
-            """# 测试训练的数据和原来的数据是不是相同的
+            test_original_target=self.test_original_target.values[r_begin:r_end]
+            """#测试做差分之后的数据和原来的数据是不是相同的
             y_shift=diff_batch(target_original)
             print(y_shift[:5],self.scaler.inverse_transform(seq_y[:5])[:,-1])"""
         else:
-            target_original=torch.zeros((r_end-r_begin))
+            test_original_target=torch.zeros((r_end-r_begin))
 
         seq_x_mark = self.data_stamp[s_begin:s_end]
         seq_y_mark = self.data_stamp[r_begin:r_end]
-        return seq_x, seq_y, seq_x_mark, seq_y_mark, target_original
+        return seq_x, seq_y, seq_x_mark, seq_y_mark, test_original_target
 
       
 
@@ -808,19 +828,32 @@ class UEAloader(Dataset):
     def __len__(self):
         return len(self.all_IDs)
 
+if __name__=="__main__":
+    target="4500K1.0S"
+    root_path=f"/git/datasets/beigang_data/{target}"
+    data_path="runmin_an_factors_4500K1.0S.csv"
+    seasonal_patterns ='Monthly' 
 
-"""
-class TrimLastColumnDataset(Dataset):
-    def __init__(self, original_data):
-        self.data = original_data
-    
-    def __len__(self):
-        return len(self.data)
-    
-    def __getitem__(self, idx):
-        # 获取数据并删除最后一列
-        item = self.data[idx][:, :-1]
-        return item"""
+    class Args():
+        def __init__(self):
+            self.name="default_name"
+    args=Args()
+    data_set = Dataset_Custom(args=args,
+        root_path=root_path,
+                data_path=data_path,
+                flag="test",
+                size=[765, 60,5],
+                features="MS",
+                target=target,
+                target_preprocess="diff",
+                timeenc=1,
+                freq="d",
+                scale=True,
+                seasonal_patterns=seasonal_patterns)
+    outputs=torch.randn(100,78)
+    shape = outputs.shape
+    outputs = data_set.inverse_transform(outputs).reshape(shape)
+    print(outputs)
 
 
 
