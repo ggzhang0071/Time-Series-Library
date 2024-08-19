@@ -19,7 +19,6 @@ Loss functions for PyTorch.
 import torch as t
 import torch.nn as nn
 import numpy as np
-import pdb
 
 
 def divide_no_nan(a, b):
@@ -50,7 +49,7 @@ class mape_loss(nn.Module):
         super(mape_loss, self).__init__()
 
     def forward(self, insample: t.Tensor, freq: int,
-                forecast: t.Tensor, target: t.Tensor, mask: t.Tensor) -> t.float:
+                forecast: t.Tensor, target: t.Tensor, mask: t.Tensor=None) -> t.float:
         """
         MAPE loss as defined in: https://en.wikipedia.org/wiki/Mean_absolute_percentage_error
 
@@ -59,9 +58,7 @@ class mape_loss(nn.Module):
         :param mask: 0/1 mask. Shape: batch, time
         :return: Loss value
         """
-        # 假设 mask 需要和 target/forecast 形状匹配
-        if mask.shape != target.shape:
-            mask = mask[:, :9, :1]  # 调整维度以匹配 target
+    
 
         weights = divide_no_nan(mask, target)
         return t.mean(t.abs((forecast - target) * weights))
@@ -105,14 +102,52 @@ class mase_loss(nn.Module):
         masked_masep_inv = divide_no_nan(mask, masep[:, None])
         return t.mean(t.abs(target - forecast) * masked_masep_inv)
     
+
+class r2_loss(nn.Module):
+    def __init__(self):
+        super(r2_loss, self).__init__()
+        
+    def forward(self, insample: t.Tensor, freq: int,
+                forecast: t.Tensor, target: t.Tensor, mask: t.Tensor = None) -> t.float:
+        
+        """
+        R-Squared loss function.
+
+        :param forecast: Forecast values. Shape: batch, time
+        :param target: Target values. Shape: batch, time
+        :param mask: 0/1 mask. Shape: batch, time
+        :return: Loss value (1 - R-Squared)
+        """
+        # Apply mask to forecast and target
+        if mask is None:
+            masked_forecast=forecast
+            masked_target=target
+        else:
+
+            masked_forecast = forecast * mask
+            masked_target = target * mask
+
+        # Compute mean of the target
+        target_mean = t.mean(masked_target, dim=1, keepdim=True)
+
+        # Compute the total sum of squares (TSS) and the residual sum of squares (RSS)
+        tss = t.sum((masked_target - target_mean) ** 2, dim=1)
+        rss = t.sum((masked_target - masked_forecast) ** 2, dim=1)
+
+        # Compute R-Squared
+        r2 = 1 - divide_no_nan(rss, tss)
+
+        # Take mean across batches and return (1 - R-Squared)
+        return t.mean(1 - r2)
+    
 if __name__=="__main__":
     # 示例数据
     forecast = t.tensor([[110.0, 120.0, 130.0], [210.0, 220.0, 230.0]])
     target = t.tensor([[100.0, 120.0, 0.0], [200.0, 0.0, 230.0]])
-    mask = t.tensor([[1.0, 1.0, 0.0], [1.0, 0.0, 1.0]])  # 忽略了第三个时间步长和第二个batch的第二个时间步长
+    mask = t.tensor([[1.0, 1.0, 1.0], [1.0, 1.0, 1.0]])  # 忽略了第三个时间步长和第二个batch的第二个时间步长
 
     # 初始化并计算loss
-    criterion = mape_loss()
-    loss = criterion(None, 1, forecast, target, mask)
+    criterion = r2_loss()
+    loss = criterion(None, 1, forecast, target)
 
     print(loss)

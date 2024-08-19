@@ -88,22 +88,27 @@ if __name__=="__main__":
     root_path='/git/datasets/beigang_data'
     #data_path='all_variables_for_mine_price.csv'
     #data_path_new='all_variables_for_mine_price_merged.csv'
-    data_path="runmin_an_factors.csv"
+    #data_path="runmin_an_factors.csv"
+    data_path="early_variables_for_mine_price.csv"
+
+    #data_path='all_variables_for_mine_price_4500K1.0S.csv'
+
+
     all_targets=["4500K1.0S",'5000K0.8S','5500K0.8S']
-    target=all_targets[2]
+    target=all_targets[1]
     if target in all_targets:
         choose_variable(root_path,data_path,all_targets,target)
     elif target=="merged":
         merge_target(root_path,data_path,target)
 
-    class Args:
+    """class Args:
         def __init__(self,target):
             self.target_preprocess = 'for_classification'
             self.target=target
     args=Args(all_targets[0])
     csv_path="/git/datasets/beigang_data"
     file_path="runmin_an_factors_4500K1.0S.csv"
-    prepare_data_for_TSL(args,csv_path,file_path)
+    prepare_data_for_TSL(args,csv_path,file_path)"""
 
 
     

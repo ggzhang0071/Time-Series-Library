@@ -44,3 +44,17 @@ optuna_params_5() {
     export pred_len=7
 }
 
+
+
+optuna_params_6() {
+    export d_model=53
+    export e_layers=5
+    export learning_rate=0.009794730425623536
+    export batch_size=98
+    export data_path="early_variables_for_mine_price_4500K1.0S.csv"
+    export target="4500K1.0S"
+    export best_vali_loss=0.8591528534889221
+    export num_trial=200
+    export pred_len=9
+}
+

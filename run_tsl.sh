@@ -5,8 +5,9 @@ timestamp=`date +%Y%m%d%H%M%S`
 logfile="Logs/${timestamp}.log"
 
 # 删除旧的日志文件
-rm Logs/*.log
-rm test_results/* -rf 
+rm Logs/*.log 
+#rm test_results/* -rf 
+rm runs/* -rf 
 
 
 bash scripts/beigang_script/optuna_opt/iTransformer_long_term_forecast.sh  2>&1 | tee -a "${logfile}"

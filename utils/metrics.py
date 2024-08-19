@@ -1,5 +1,38 @@
 import numpy as np
+import torch 
 from sklearn.metrics import r2_score
+
+
+def find_lowest_point(prediction):
+    min_values = []
+    min_indices = []
+    
+    # Iterate over each prediction in the list
+    for pred in prediction:
+        if isinstance(pred, np.ndarray):
+            pred = torch.tensor(pred)
+        # Assuming pred is a tensor of shape (pred_len, 1)
+
+        min_value, min_index = torch.min(pred, dim=0)  # Find the minimum along the time dimension
+        min_values.append(min_value.item())  # Convert tensor to a Python scalar and store
+        min_indices.append(min_index.item())  # Store the index as a Python scalar
+
+    return min_values, min_indices
+def calculate_accuracy(predictions, targets):
+    # Find the lowest points in predictions and targets
+    _, pred_min_indices = find_lowest_point(predictions)
+    _, target_min_indices = find_lowest_point(targets)
+
+    # Convert lists to tensors
+    pred_min_indices = torch.tensor(pred_min_indices)
+    target_min_indices = torch.tensor(target_min_indices)
+
+    # Calculate the number of correct predictions
+    correct_predictions = torch.sum(pred_min_indices == target_min_indices).item()
+    total_predictions = len(pred_min_indices)
+
+    accuracy = correct_predictions / total_predictions
+    return accuracy
 
 
 def RSE(pred, true):
@@ -58,3 +91,15 @@ def metric(pred, true):
 
 
     return mae, mse, rmse, mape, mspe,r2, r21
+
+if __name__=="__main__":
+    # Example usage:
+    predictions = [torch.randint(low=0, high=100, size=(10, 1)) for _ in range(100)]
+
+    targets=[torch.randint(low=0, high=100, size=(10, 1)) for _ in range(100)]
+
+    Acc=calculate_accuracy(predictions, targets)
+
+
+    print(f"ACC:{Acc}")
+
