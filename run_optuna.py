@@ -143,7 +143,7 @@ def parse_args():
         parser.add_argument('--discdtw', default=False, action="store_true", help="Discrimitive DTW warp preset augmentation")
         parser.add_argument('--discsdtw', default=False, action="store_true", help="Discrimitive shapeDTW warp preset augmentation")
         parser.add_argument('--extra_tag', type=str, default="", help="Anything extra")
-        parser.add_argument('--config', type=str, required=False, default=None, help='Path to config file')
+        parser.add_argument('--config', type=str, required=False, default="", help='Path to config file')
 
         ## opunta 参数
         parser.add_argument('--num_trial', type=int, default=2, help="optuna trial numbers")
@@ -155,10 +155,10 @@ def main(args):
         random.seed(fix_seed)
         torch.manual_seed(fix_seed)
         np.random.seed(fix_seed)
-        if args.config!='None':
+        if  args.config != '':
             with open(args.config, 'r') as fid:
                 param_config=json.load(fid)
-            if trial is not  None and param_config!=None:
+            if trial is not  None:
                 for param_name, attributes in param_config.items():
                     param_type = attributes['type']
                     if param_type == 'float':
@@ -243,8 +243,6 @@ if __name__=="__main__":
     optuna_time=end_time-start_time  
 
    
-
-
     file_path = 'optuna_best_params.sh'
     # 获取最优参数
     best_params = study.best_params
@@ -253,6 +251,7 @@ if __name__=="__main__":
     best_params['best_vali_loss'] = study.best_value  # 添加最优值到字典中
     best_params["num_trial"] = args.num_trial
     best_params["pred_len"]=args.pred_len
+    best_params['model']=args.model 
     print(f"The best parameter is: {best_params}")
 
     print("Optuna best params: ", study.best_params)

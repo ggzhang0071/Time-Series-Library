@@ -143,4 +143,17 @@ All the experiment datasets are public, and we obtain them from the following li
   <img src="https://contrib.rocks/image?repo=thuml/Time-Series-Library" />
 </a>
 
-目前
+目前To see whether PatchTST is sensitive to the choice of Transformer settings, we perform another ex-
+periments with varying model parameters. We vary the number of Transformer layers L = {3, 4, 5}
+and select the model dimension D = {128, 256} while the inner-layer of the feed forward network
+is F = 2D. In total, there are 6 different sets of model hyper-parameters to examine. Figure 5
+shows the MSE scores of these combinations on different datasets. Except ILI dataset reveals high
+variance with different hyper-parameter settings, other datasets are robust to the choice of model
+hyper-parameters.  参数 d_model 和 e_layer 参数比较敏感
+
+In the main text, we have explored the effect of number of scales M . Here, we further evaluate the
+number of layers L. As shown in Table 12, we can find that in general, increasing the number of
+layers (L) will bring improvements across different prediction lengths. Therefore, we set to 2 to trade
+off efficiency and performance. TimeMixer  对e-layer 比较敏感
+
+这里说明 inverse 和scale 目前还是有用的

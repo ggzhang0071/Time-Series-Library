@@ -10,4 +10,9 @@ rm Logs/*.log
 rm runs/* -rf 
 
 
-bash scripts/beigang_script/optuna_opt/iTransformer_long_term_forecast.sh  2>&1 | tee -a "${logfile}"
+#bash scripts/beigang_script/optuna_opt/iTransformer_long_term_forecast.sh 3  2>&1 | tee -a "${logfile}"
+
+#bash  scripts/beigang_script/optuna_opt/DLinear.sh   2>&1 | tee -a "${logfile}"
+
+bash  scripts/beigang_script/optuna_opt/PatchTST.sh   2>&1 | tee -a "${logfile}"
+

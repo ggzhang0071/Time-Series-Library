@@ -3,9 +3,14 @@ import torch
 from sklearn.metrics import r2_score
 
 
-def find_lowest_point(prediction):
+import torch
+import numpy as np
+
+def find_lowest_and_highest_points(prediction):
     min_values = []
     min_indices = []
+    max_values = []
+    max_indices = []
     
     # Iterate over each prediction in the list
     for pred in prediction:
@@ -13,26 +18,45 @@ def find_lowest_point(prediction):
             pred = torch.tensor(pred)
         # Assuming pred is a tensor of shape (pred_len, 1)
 
-        min_value, min_index = torch.min(pred, dim=0)  # Find the minimum along the time dimension
-        min_values.append(min_value.item())  # Convert tensor to a Python scalar and store
-        min_indices.append(min_index.item())  # Store the index as a Python scalar
+        # Find the minimum value and its index
+        min_value, min_index = torch.min(pred, dim=0)
+        min_values.append(min_value.item())
+        min_indices.append(min_index.item())
 
-    return min_values, min_indices
+        # Find the maximum value and its index
+        max_value, max_index = torch.max(pred, dim=0)
+        max_values.append(max_value.item())
+        max_indices.append(max_index.item())
+
+    return min_values, min_indices, max_values, max_indices
+
+
+
 def calculate_accuracy(predictions, targets):
-    # Find the lowest points in predictions and targets
-    _, pred_min_indices = find_lowest_point(predictions)
-    _, target_min_indices = find_lowest_point(targets)
+    # Find the lowest and highest points in predictions and targets
+    _, pred_min_indices, _, pred_max_indices = find_lowest_and_highest_points(predictions)
+    _, target_min_indices, _, target_max_indices = find_lowest_and_highest_points(targets)
 
     # Convert lists to tensors
     pred_min_indices = torch.tensor(pred_min_indices)
     target_min_indices = torch.tensor(target_min_indices)
+    pred_max_indices = torch.tensor(pred_max_indices)
+    target_max_indices = torch.tensor(target_max_indices)
 
-    # Calculate the number of correct predictions
-    correct_predictions = torch.sum(pred_min_indices == target_min_indices).item()
-    total_predictions = len(pred_min_indices)
+    # Calculate the number of correct predictions for lowest points
+    correct_min_predictions = torch.sum(pred_min_indices == target_min_indices).item()
+    total_min_predictions = len(pred_min_indices)
+    min_accuracy = correct_min_predictions / total_min_predictions
 
-    accuracy = correct_predictions / total_predictions
-    return accuracy
+    # Calculate the number of correct predictions for highest points
+    correct_max_predictions = torch.sum(pred_max_indices == target_max_indices).item()
+    total_max_predictions = len(pred_max_indices)
+    max_accuracy = correct_max_predictions / total_max_predictions
+
+    return min_accuracy, max_accuracy
+
+
+
 
 
 def RSE(pred, true):
@@ -69,16 +93,7 @@ def R2(pred, true):
     ss_tot = np.sum((true - true.mean()) ** 2)
     return 1 - ss_res / ss_tot
 
-def R2_score_adjust(true,pred):
-    # 将 true 和 pred 转换成 numpy 数组
-    true = np.array(true)  # (95, 5, 1)
-    pred = np.array(pred)  # (95, 5, 1)
 
-    # 扁平化为 (95 * 5, 1) 的数组
-    true_flat = true.reshape(-1)
-    pred_flat = pred.reshape(-1)
-    r21=r2_score(true_flat, pred_flat)
-    return r21
 
 def metric(pred, true):
     mae = MAE(pred, true)
@@ -87,10 +102,8 @@ def metric(pred, true):
     mape = MAPE(pred, true)
     mspe = MSPE(pred, true)
     r2=R2(pred,true)
-    r21 = R2_score_adjust(true,pred)
 
-
-    return mae, mse, rmse, mape, mspe,r2, r21
+    return mae, mse, rmse, mape, mspe, r2
 
 if __name__=="__main__":
     # Example usage:

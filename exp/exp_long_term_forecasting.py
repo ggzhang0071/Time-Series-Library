@@ -358,27 +358,27 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                
                 preds=reconstruct_series_from_preds(preds,batch_original_y)
                 trues=batch_original_y
-            mae, mse, rmse, mape, mspe, r2, r21= metric(preds, trues)
+            mae, mse, rmse, mape, mspe, r2= metric(preds, trues)
             from utils.metrics import  calculate_accuracy
-            Acc=calculate_accuracy(preds,trues)
-            print(f'mse:{mse}, mae:{mae}, mape:{mape}, r2:{r2},r2_score:{r21}, Acc:{Acc}, dtw:{dtw}')
+            Min_acc,Max_acc=calculate_accuracy(preds,trues)
+            print(f'mse:{mse}, mae:{mae}, mape:{mape}, r2:{r2}, Min_acc:{Min_acc}, Max_acc:{Max_acc}, dtw:{dtw}')
 
-            if Acc>(1/self.args.pred_len)*1.2:
-                visual_prediction(trues[-1], preds[-1],os.path.join(folder_path, f"pred_len_{self.args.pred_len}_acc{Acc}.pdf"))
-                if test_data.scale and self.args.inverse:
-                    f = open("result_long_term_forecast_inverse.txt", 'a')
-                else:
-                    f = open("result_long_term_forecast.txt", 'a')
+            if Min_acc>(1/self.args.pred_len)*1.5 and Max_acc>(1/self.args.pred_len)*1.5:
+                visual_prediction(trues[-1], preds[-1],os.path.join(folder_path, f"pred_len_{self.args.pred_len}_minacc_{Min_acc}_maxacc_{Max_acc}.pdf"))
+            if test_data.scale and self.args.inverse:
+                f = open("result_long_term_forecast_inverse.txt", 'a')
+            else:
+                f = open("result_long_term_forecast.txt", 'a')
 
-                f.write(setting + "  \n")
-                f.write(f'mse:{mse}, mae:{mae}, mape:{mape}, r2:{r2}, Acc:{Acc}, dtw:{dtw}')
-                f.write('\n')
-                f.write('\n')
-                f.close()
+            f.write(setting + "  \n")
+            f.write(f'mse:{mse}, mae:{mae}, mape:{mape}, r2:{r2}, Min_acc:{Min_acc}, Max_acc:{Max_acc}, dtw:{dtw}')
+            f.write('\n')
+            f.write('\n')
+            f.close()
 
-                np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
-                np.save(folder_path + 'pred.npy', preds)
-                np.save(folder_path + 'true.npy', trues)
+            np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
+            np.save(folder_path + 'pred.npy', preds)
+            np.save(folder_path + 'true.npy', trues)
         return  
 
 

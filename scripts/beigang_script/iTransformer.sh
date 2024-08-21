@@ -18,7 +18,7 @@ source optuna_best_params.sh
 # 检查是否传递了参数组选择
 if [[ "$1" =~ ^[0-9]+$ ]]; then
     "optuna_params_$1"
-    config_path=None
+    config_path=""
     num_trial=1
     train_epochs=20
 else
@@ -29,20 +29,21 @@ else
     batch_size=120
     train_epochs=10
     config_path="./scripts/beigang_script/optuna_opt/param_config_${task_name}_${model_name}.json"
-    num_trial=2
+    num_trial=10
 
 fi
 
+#  5 7 9 11
 
-for pred_len in  3 5 7 
+for pred_len in  5
 do 
 # run_optuna.py  run.py  
-nohup python  run_optuna.py \
+ python -m pdb  run_optuna.py \
   --task_name  $task_name \
   --is_training 1 \
   --root_path $root_path \
   --data_path $data_path \
-  --model_id  "beigang_${seq_len}_${pred_len}" \
+  --model_id "beigang_${seq_len}_${pred_len}" \
   --model $model_name \
   --data custom \
   --features MS \
@@ -69,7 +70,7 @@ nohup python  run_optuna.py \
   --patience 10 \
   --inverse \
   --target $target \
-  --config "$config_path" \
+  --config "${config_path}" \
   --augmentation_ratio 1 \
   --num_trial $num_trial \
   --loss 'MSE' 
