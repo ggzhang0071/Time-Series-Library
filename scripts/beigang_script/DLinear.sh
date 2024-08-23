@@ -1,7 +1,8 @@
 export CUDA_VISIBLE_DEVICES=2
 
 
-target="4500K1.0S" 
+target='5500K0.8S'
+#all_targets=["4500K1.0S",'5000K0.8S','5500K0.8S']
 root_path="/git/datasets/beigang_data"
 #data_path="all_variables_for_mine_price_${target}.csv"
 #data_path="runmin_an_factors_${target}.csv"
@@ -29,14 +30,14 @@ else
     learning_rate=0.007 
     batch_size=120
     train_epochs=10
-    config_path="./scripts/beigang_script/optuna_opt/param_config_${task_name}_${model_name}.json"
-    num_trial=2
+    config_path="./scripts/beigang_script/param_config_${task_name}_${model_name}.json"
+    num_trial=100
 fi
 #  5 7 9 11
-for pred_len in  11 13
+for pred_len in 20 15 10 5
 do 
 # run_optuna.py  run.py  
- python -m pdb    run_optuna.py \
+nohup python    run_optuna.py \
   --task_name  $task_name \
   --is_training 1 \
   --root_path $root_path \

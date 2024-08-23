@@ -14,6 +14,7 @@ from utils.augmentation import run_augmentation,run_augmentation_single
 from utils.losses import mape_loss,mape1_loss,mase_loss, smape_loss,r2_loss
 from utils.tools import reconstruct_series_from_preds
 from utils.tools import diff_batch
+from utils.metrics import  calculate_accuracy
 from torch.utils.tensorboard import SummaryWriter
 
 
@@ -96,7 +97,13 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
 
                 total_loss.append(loss)
-        total_loss = np.average(total_loss[0].cpu().numpy())
+        if len(total_loss) > 0:
+            total_loss = np.average(total_loss[0].cpu().numpy())
+        else:
+            # 如果 total_loss 为空，返回 np.nan
+            total_loss = np.nan  
+            print("Warning: total_loss is empty. Returning default loss value.")
+
 
         self.model.train()
         return total_loss
@@ -176,10 +183,12 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 
 
                 if (i + 1) % 100 == 0:
-                    print("\titers: {0}, epoch: {1} | loss: {2:.7f}".format(i + 1, epoch + 1, loss.item()))
+                    print(f"\titers: {i + 1}, epoch: {epoch + 1} | loss: {loss.item():.7f}")
+
                     speed = (time.time() - time_now) / iter_count
                     left_time = speed * ((self.args.train_epochs - epoch) * train_steps - i)
-                    print('\tspeed: {:.4f}s/iter; left time: {:.4f}s'.format(speed, left_time))
+                    print(f"\tspeed: {speed:.4f}s/iter; left time: {left_time:.4f}s")
+
                     iter_count = 0
                     time_now = time.time()
 
@@ -202,8 +211,8 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             vali_loss = self.vali(vali_data, vali_loader, criterion)
             test_loss = self.vali(test_data, test_loader, criterion)
 
-            print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f}, Vali Loss: {3:.7f}, Test Loss: {4:.7f}".format(
-                epoch + 1, train_steps, train_loss, vali_loss, test_loss))
+            print(f"Epoch: {epoch+1}, Steps: {train_steps} | Train Loss: {train_loss}, Vali Loss: {vali_loss}, Test Loss: {test_loss}")
+
             
             self.writer.add_scalar('Loss/train', train_loss, epoch)
             self.writer.add_scalar('Loss/vali', vali_loss, epoch)
@@ -358,20 +367,20 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                
                 preds=reconstruct_series_from_preds(preds,batch_original_y)
                 trues=batch_original_y
-            mae, mse, rmse, mape, mspe, r2= metric(preds, trues)
-            from utils.metrics import  calculate_accuracy
-            Min_acc,Max_acc=calculate_accuracy(preds,trues)
-            print(f'mse:{mse}, mae:{mae}, mape:{mape}, r2:{r2}, Min_acc:{Min_acc}, Max_acc:{Max_acc}, dtw:{dtw}')
+            # 因为第一个变量是去的数值是一定是正确的，所以在做预测的时候剔除掉
+            mae, mse, rmse, mape, mspe, r2= metric(preds[1:], trues[1:])
+            Min_acc,Max_acc=calculate_accuracy(preds[1:],trues[1:])
+            print(f'mse:{mse}, rmse:{rmse[0]}, mae:{mae}, mape:{mape}, r2:{r2}, Min_acc:{Min_acc}, Max_acc:{Max_acc}, dtw:{dtw}')
 
-            if Min_acc>(1/self.args.pred_len)*1.5 and Max_acc>(1/self.args.pred_len)*1.5:
-                visual_prediction(trues[-1], preds[-1],os.path.join(folder_path, f"pred_len_{self.args.pred_len}_minacc_{Min_acc}_maxacc_{Max_acc}.pdf"))
+            if Min_acc>(1/(self.args.pred_len-1))*1.5 and Max_acc>(1/(self.args.pred_len-1))*1.5:
+                visual_prediction(trues[-15], preds[-15],os.path.join(folder_path, f"pred_len_{self.args.pred_len}_minacc_{Min_acc}_maxacc_{Max_acc}.pdf"))
             if test_data.scale and self.args.inverse:
                 f = open("result_long_term_forecast_inverse.txt", 'a')
             else:
                 f = open("result_long_term_forecast.txt", 'a')
 
             f.write(setting + "  \n")
-            f.write(f'mse:{mse}, mae:{mae}, mape:{mape}, r2:{r2}, Min_acc:{Min_acc}, Max_acc:{Max_acc}, dtw:{dtw}')
+            f.write(f'mse:{mse},  rmse:{rmse[0]}, mae:{mae}, mape:{mape}, r2:{r2}, Min_acc:{Min_acc}, Max_acc:{Max_acc}, dtw:{dtw}')
             f.write('\n')
             f.write('\n')
             f.close()

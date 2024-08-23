@@ -142,18 +142,45 @@ All the experiment datasets are public, and we obtain them from the following li
 <a href="https://github.com/thuml/Time-Series-Library/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=thuml/Time-Series-Library" />
 </a>
+## 测试结果
 
+### iTransformer 
+We evaluate the hyperparameter sensitivity of iTransformer with respect to the following factors: the
+learning rate lr, the number of Transformer blocks L, and the hidden dimension D of variate tokens.
+The results are shown in Figure 9. We find that the learning rate, as the most common influencing
+factor, should be carefully selected when the number of variates is large (ECL, Traffic). The block
+number and hidden dimension are not essentially favored to be as large as possible in iTransformer
+
+### PatchTST:
 目前To see whether PatchTST is sensitive to the choice of Transformer settings, we perform another ex-
 periments with varying model parameters. We vary the number of Transformer layers L = {3, 4, 5}
 and select the model dimension D = {128, 256} while the inner-layer of the feed forward network
 is F = 2D. In total, there are 6 different sets of model hyper-parameters to examine. Figure 5
 shows the MSE scores of these combinations on different datasets. Except ILI dataset reveals high
 variance with different hyper-parameter settings, other datasets are robust to the choice of model
-hyper-parameters.  参数 d_model 和 e_layer 参数比较敏感
+hyper-parameters.  参数 d_model 和 e_layer 比较敏感
 
+
+## TimeMixer
 In the main text, we have explored the effect of number of scales M . Here, we further evaluate the
 number of layers L. As shown in Table 12, we can find that in general, increasing the number of
 layers (L) will bring improvements across different prediction lengths. Therefore, we set to 2 to trade
 off efficiency and performance. TimeMixer  对e-layer 比较敏感
 
+
+### TimesNet 
+Top_k=3用于插值、分类和异常检测任务, Top_k=5用于短期预测任务.
+
+现在测试TimesNet 和 TImeMixer 这种分解的方法，好像没有用
+
 这里说明 inverse 和scale 目前还是有用的
+
+在 pl5 中使用 DLinear 算法是比较好的， 
+
+在pl10 和Pl15 中使用PatchTST 是比较好的
+
+pl20 中  PatchTST 在 5000 都是 PatchTST 比较好了
+
+
+
+

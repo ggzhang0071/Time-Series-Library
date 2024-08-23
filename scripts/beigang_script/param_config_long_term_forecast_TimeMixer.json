@@ -1,9 +1,5 @@
 {
-    "d_model": {
-        "type": "int",
-        "low": 12,
-        "high": 100
-    },
+  
     "e_layers": {
         "type": "int",
         "low": 2,

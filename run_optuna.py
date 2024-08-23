@@ -211,7 +211,7 @@ def main(args):
             for ii in range(args.itr):
                 # setting record of experiments
                 exp = Exp(args)  # set experiments
-                setting = f"{args.task_name}_{args.model_id}_{args.model}_{args.data}_ft{args.features}_sl{args.seq_len}_ll{args.label_len}_pl{args.pred_len}_dm{args.d_model}_nh{args.n_heads}_el{args.e_layers}_dl{args.d_layers}_df{args.d_ff}_expand{args.expand}_dc{args.d_conv}_fc{args.factor}_eb{args.embed}_dt{args.distil}_al{args.augmentation_ratio}_{args.des}_{ii}"
+                setting = f"{args.model}_{args.task_name}_{args.model_id}_{args.target}_{args.data}_ft{args.features}_sl{args.seq_len}_ll{args.label_len}_pl{args.pred_len}_dm{args.d_model}_nh{args.n_heads}_el{args.e_layers}_dl{args.d_layers}_df{args.d_ff}_expand{args.expand}_dc{args.d_conv}_fc{args.factor}_eb{args.embed}_dt{args.distil}_al{args.augmentation_ratio}_{args.des}_{ii}"
 
 
                 print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
@@ -224,7 +224,7 @@ def main(args):
                 torch.cuda.empty_cache()
         else:
             ii = 0
-            setting = f"{args.task_name}_{args.model_id}_{args.model}_{args.data}_ft{args.features}_sl{args.seq_len}_ll{args.label_len}_pl{args.pred_len}_dm{args.d_model}_nh{args.n_heads}_el{args.e_layers}_dl{args.d_layers}_df{args.d_ff}_expand{args.expand}_dc{args.d_conv}_fc{args.factor}_eb{args.embed}_dt{args.distil}_al{args.augmentation_ratio}_{args.des}_{ii}"
+            setting = f"{args.model}_{args.task_name}_{args.model_id}_{args.target}_{args.data}_ft{args.features}_sl{args.seq_len}_ll{args.label_len}_pl{args.pred_len}_dm{args.d_model}_nh{args.n_heads}_el{args.e_layers}_dl{args.d_layers}_df{args.d_ff}_expand{args.expand}_dc{args.d_conv}_fc{args.factor}_eb{args.embed}_dt{args.distil}_al{args.augmentation_ratio}_{args.des}_{ii}"
 
             exp = Exp(args)  # set experiments
             print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
@@ -259,29 +259,30 @@ if __name__=="__main__":
     print("Optuna runtime: ", optuna_time, "sec")
 
     # 检查文件是否存在并获取现有的 optuna_params 函数的数量
-    if os.path.exists(file_path):
-        with open(file_path, 'r') as f:
-            content = f.read()
-        # 使用正则表达式查找现有的 optuna_params 函数数量
-        matches = re.findall(r'optuna_params_(\d+)', content)
-        if matches:
-            max_num = max([int(match) for match in matches])
-            func_num = max_num + 1
+    if args.num_trial >=10:
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as f:
+                content = f.read()
+            # 使用正则表达式查找现有的 optuna_params 函数数量
+            matches = re.findall(r'optuna_params_(\d+)', content)
+            if matches:
+                max_num = max([int(match) for match in matches])
+                func_num = max_num + 1
+            else:
+                func_num = 1
         else:
             func_num = 1
-    else:
-        func_num = 1
 
-    # 写入 .sh 文件
-    with open(file_path, 'a') as f:  # 'a' 模式用于追加到文件末尾
-        f.write("\n")
-        f.write(f"optuna_params_{func_num}() {{\n")
-        for key, value in best_params.items(): 
-            if isinstance(value, str):
-                # 如果值是字符串，则加上双引号
-                f.write(f"    export {key}=\"{value}\"\n")
-            else:
-                f.write(f"    export {key}={value}\n")
-        f.write("}\n")
+        # 写入 .sh 文件
+        with open(file_path, 'a') as f:  # 'a' 模式用于追加到文件末尾
+            f.write("\n")
+            f.write(f"optuna_params_{func_num}() {{\n")
+            for key, value in best_params.items(): 
+                if isinstance(value, str):
+                    # 如果值是字符串，则加上双引号
+                    f.write(f"    export {key}=\"{value}\"\n")
+                else:
+                    f.write(f"    export {key}={value}\n")
+            f.write("}\n")
 
-    print(f"Saved best parameters as optuna_params_{func_num} to {file_path}")
+        print(f"Saved best parameters as optuna_params_{func_num} to {file_path}")
