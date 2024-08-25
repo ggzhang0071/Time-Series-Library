@@ -13,12 +13,10 @@ from utils.timefeatures import time_features
 from data_provider.m4 import M4Dataset, M4Meta
 from data_provider.uea import subsample, interpolate_missing, Normalizer
 from sktime.datasets import load_from_tsfile_to_dataframe
-import warnings
 from utils.augmentation import run_augmentation_single
 from utils.tools import diff_batch
-
 from sklearn.impute import KNNImputer
-
+import warnings
 warnings.filterwarnings('ignore')
 
 
@@ -224,7 +222,7 @@ class Dataset_Custom(Dataset):
         else:
             self.seq_len = size[0]
             self.label_len = size[1]
-            self.pred_len = size[2]
+            self.pred_len = size[2] 
         # init
         assert flag in ['train', 'test', 'val']
         type_map = {'train': 0, 'val': 1, 'test': 2}
@@ -271,15 +269,12 @@ class Dataset_Custom(Dataset):
             y_diff=y.shift(-1)/y -1 
             df_raw[self.target]=y_diff
 
-            cols = list(df_raw.columns)
-            cols.remove(self.target)
-            cols.remove('date')
-            df_raw = df_raw[['date'] + cols +[self.target]]
-        else:
-            cols = list(df_raw.columns)
-            cols.remove(self.target)
-            cols.remove('date')
-            df_raw = df_raw[['date'] + cols +[self.target]]
+            #重新排列，以便数据后续更好的特定剔除target 和date 项目
+        cols = list(df_raw.columns)
+        cols.remove(self.target)
+        cols.remove('date')
+        df_raw = df_raw[['date'] + cols +[self.target]]
+       
         
         
         num_train = int(len(df_raw) * 0.8)

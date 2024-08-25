@@ -105,7 +105,6 @@ optuna_params_43() {
     export pred_len=3
     export model="PatchTST"
 }
-
 optuna_params_44() {
     export seq_len=97
     export learning_rate=0.005714417677461466
@@ -151,4 +150,16 @@ optuna_params_47() {
     export best_vali_loss=0.6389580368995667
     export num_trial=100
     export pred_len=5
-    export model="PatchTST
+    export model="PatchTST"
+}
+optuna_params_48() {
+    export e_layers=3
+    export learning_rate=0.008213189045416576
+    export batch_size=77
+    export data_path="early_variables_for_mine_price_4500K1.0S.csv"
+    export target="4500K1.0S"
+    export best_vali_loss=0.8219729661941528
+    export num_trial=100
+    export pred_len=15
+    export model="PatchTST"
+}

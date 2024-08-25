@@ -1,7 +1,7 @@
 export CUDA_VISIBLE_DEVICES=1
 
 model_name=PatchTST
-target=5500K0.8S
+target=4500K1.0S 
 #all_targets=['5000K0.8S','5500K0.8S',"4500K1.0S"]
 
 root_path="/git/datasets/beigang_data"
@@ -31,15 +31,15 @@ else
     batch_size=120
     train_epochs=10
     config_path="./scripts/beigang_script/param_config_${task_name}_${model_name}.json"
-    num_trial=100
+    num_trial=5
     pred_len=10
 fi
 
-for d_model in 256
+for d_model in 128 
 do 
-for pred_len in 35 30 25  20 15 10 5
+for pred_len in 45 15
 do 
-nohup python   run_optuna.py \
+ python -m pdb  run_optuna.py \
   --task_name $task_name \
   --is_training 1 \
   --root_path $root_path \

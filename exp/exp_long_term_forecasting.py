@@ -104,7 +104,6 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             total_loss = np.nan  
             print("Warning: total_loss is empty. Returning default loss value.")
 
-
         self.model.train()
         return total_loss
 
@@ -213,7 +212,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
             print(f"Epoch: {epoch+1}, Steps: {train_steps} | Train Loss: {train_loss}, Vali Loss: {vali_loss}, Test Loss: {test_loss}")
 
-            
+
             self.writer.add_scalar('Loss/train', train_loss, epoch)
             self.writer.add_scalar('Loss/vali', vali_loss, epoch)
             self.writer.add_scalar('Loss/test', test_loss, epoch)
@@ -306,35 +305,36 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                             processed_batch_y.append(processed_sample)
                         batch_y = np.array(processed_batch_y).reshape(shape)
 
-
+                        
                 outputs = outputs[:, :, f_dim:]
                 batch_y = batch_y[:, :, f_dim:]
 
                 pred = outputs
                 true = batch_y
 
-            preds.append(pred)
-            trues.append(true)
-            if i >=0:
-                input = batch_x.detach().cpu().numpy()
-                if test_data.scale and self.args.inverse:
-                    shape = input.shape  # e.g., (batch_size, seq_length, feature_dim)
-                    # 将 input 展平为二维数组
-                    input_reshaped = input.reshape(-1, shape[-1])  # shape: (batch_size * seq_length, feature_dim)
-                    # 逆变换
-                    input_transformed = test_data.inverse_transform(input_reshaped)
-                    # 将 input 恢复到原始形状
-                    input = input_transformed.reshape(shape)
-                
-                gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
-                pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-                visual(gt, self.args.pred_len, pd, os.path.join(folder_path,  str(i) + '.pdf'))
+                preds.append(pred)
+                trues.append(true)
+                if i >=0:
+                    input = batch_x.detach().cpu().numpy()
+                    if test_data.scale and self.args.inverse:
+                        shape = input.shape  # e.g., (batch_size, seq_length, feature_dim)
+                        # 将 input 展平为二维数组
+                        input_reshaped = input.reshape(-1, shape[-1])  # shape: (batch_size * seq_length, feature_dim)
+                        # 逆变换
+                        input_transformed = test_data.inverse_transform(input_reshaped)
+                        # 将 input 恢复到原始形状
+                        input = input_transformed.reshape(shape)
+                    
+                    gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
+                    pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
+                    visual(gt, self.args.pred_len, pd, os.path.join(folder_path,  str(i) + '.pdf'))
+
 
         if not preds:  
             print("Preds is an empty list, the trial is failed")  
         else:
-            preds = np.array(preds)
-            trues = np.array(trues)
+            preds = np.concatenate(preds, axis=0)
+            trues = np.concatenate(trues, axis=0)
             print('test shape:', preds.shape, trues.shape)
             preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
             trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
@@ -367,27 +367,26 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                
                 preds=reconstruct_series_from_preds(preds,batch_original_y)
                 trues=batch_original_y
-            # 因为第一个变量是去的数值是一定是正确的，所以在做预测的时候剔除掉
-            mae, mse, rmse, mape, mspe, r2= metric(preds[1:], trues[1:])
+            mae, mse, rmse, mape, mspe, r2= metric(preds, trues)
             Min_acc,Max_acc=calculate_accuracy(preds[1:],trues[1:])
             print(f'mse:{mse}, rmse:{rmse[0]}, mae:{mae}, mape:{mape}, r2:{r2}, Min_acc:{Min_acc}, Max_acc:{Max_acc}, dtw:{dtw}')
 
             if Min_acc>(1/(self.args.pred_len-1))*1.5 and Max_acc>(1/(self.args.pred_len-1))*1.5:
-                visual_prediction(trues[-15], preds[-15],os.path.join(folder_path, f"pred_len_{self.args.pred_len}_minacc_{Min_acc}_maxacc_{Max_acc}.pdf"))
-            if test_data.scale and self.args.inverse:
-                f = open("result_long_term_forecast_inverse.txt", 'a')
-            else:
-                f = open("result_long_term_forecast.txt", 'a')
+                visual_prediction(trues[-1], preds[-1],os.path.join(folder_path, f"pred_len_{self.args.pred_len}_minacc_{Min_acc}_maxacc_{Max_acc}.pdf"))
+                if test_data.scale and self.args.inverse:
+                    f = open("result_long_term_forecast_inverse.txt", 'a')
+                else:
+                    f = open("result_long_term_forecast.txt", 'a')
 
-            f.write(setting + "  \n")
-            f.write(f'mse:{mse},  rmse:{rmse[0]}, mae:{mae}, mape:{mape}, r2:{r2}, Min_acc:{Min_acc}, Max_acc:{Max_acc}, dtw:{dtw}')
-            f.write('\n')
-            f.write('\n')
-            f.close()
+                f.write(setting + "  \n")
+                f.write(f'mse:{mse},  rmse:{rmse[0]}, mae:{mae}, mape:{mape}, r2:{r2}, Min_acc:{Min_acc}, Max_acc:{Max_acc}, dtw:{dtw}')
+                f.write('\n')
+                f.write('\n')
+                f.close()
 
-            np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
-            np.save(folder_path + 'pred.npy', preds)
-            np.save(folder_path + 'true.npy', trues)
+                np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
+                np.save(folder_path + 'pred.npy', preds)
+                np.save(folder_path + 'true.npy', trues)
         return  
 
 

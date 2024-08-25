@@ -13,10 +13,7 @@ import random
 import numpy as np
 import optuna 
 import time
-import logging
 import json, re 
-import pandas as pd 
-import traceback
 
 
 
@@ -259,7 +256,7 @@ if __name__=="__main__":
     print("Optuna runtime: ", optuna_time, "sec")
 
     # 检查文件是否存在并获取现有的 optuna_params 函数的数量
-    if args.num_trial >=10:
+    if args.num_trial >2:
         if os.path.exists(file_path):
             with open(file_path, 'r') as f:
                 content = f.read()
