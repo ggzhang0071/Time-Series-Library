@@ -13,10 +13,10 @@ tqdm
 dataclasses
 optuna
 tensorboard  
-mamba-ssm==2.0.3
+mamba-ssm
 # for jupyterlab 
-notebook
-jupyterlab
+#notebook
+#jupyterlab
 
 
 

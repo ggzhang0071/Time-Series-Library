@@ -31,47 +31,45 @@ else
     batch_size=120
     train_epochs=10
     config_path="./scripts/beigang_script/param_config_${task_name}_${model_name}.json"
-    num_trial=5
+    num_trial=100
     pred_len=10
 fi
 
-for d_model in 128 
-do 
-for pred_len in 45 15
-do 
- python -m pdb  run_optuna.py \
-  --task_name $task_name \
-  --is_training 1 \
-  --root_path $root_path \
-  --data_path $data_path \
-  --model_id "beigang_${seq_len}_${pred_len}" \
-  --model $model_name \
-  --data custom \
-  --features MS \
-  --seq_len $seq_len \
-  --label_len 48 \
-  --pred_len $pred_len \
-  --e_layers $e_layers \
-  --d_layers 1 \
-  --factor 3 \
-  --enc_in 8 \
-  --dec_in 8 \
-  --c_out 8 \
-  --des 'Exp' \
-  --batch_size $batch_size \
-  --freq 'd' \
-  --train_epochs $train_epochs \
-  --d_model $d_model \
-  --d_ff $((d_model * 2)) \
-  --target_preprocess  "diff" \
-  --learning_rate $learning_rate \
-  --itr 1   \
-  --patience 10 \
-  --inverse \
-  --target $target \
-  --config "${config_path}" \
-  --augmentation_ratio 1 \
-    --num_trial $num_trial \
-  --itr 1
-done
+for d_model in 128; do 
+  for pred_len in 15 10 5 25 20 ; do 
+    nohup python  run_optuna.py \
+      --task_name "$task_name" \
+      --is_training 1 \
+      --root_path "$root_path" \
+      --data_path "$data_path" \
+      --model_id "beigang_${seq_len}_${pred_len}" \
+      --model "$model_name" \
+      --data custom \
+      --features MS \
+      --seq_len "$seq_len" \
+      --label_len 48 \
+      --pred_len "$pred_len" \
+      --e_layers "$e_layers" \
+      --d_layers 1 \
+      --factor 3 \
+      --enc_in 8 \
+      --dec_in 8 \
+      --c_out 8 \
+      --des 'Exp' \
+      --batch_size "$batch_size" \
+      --freq 'd' \
+      --train_epochs "$train_epochs" \
+      --d_model "$d_model" \
+      --d_ff "$((d_model * 2))" \
+      --target_preprocess "diff" \
+      --learning_rate "$learning_rate" \
+      --itr 1 \
+      --patience 10 \
+      --inverse \
+      --target "$target" \
+      --config "$config_path" \
+      --augmentation_ratio 1 \
+      --num_trial "$num_trial" \
+      --itr 1
+  done
 done

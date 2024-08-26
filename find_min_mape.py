@@ -10,7 +10,7 @@ data = []
 with open(file_path, 'r') as file:
     current_line = ""  # Initialize variable to store lines with 'beigang' and 'pl15'
     for line in file:
-        if 'pl20' in line:
+        if 'pl15' in line and "4500K1.0S" in line:
             current_line = line.strip()  # Save the line containing 'beigang' and 'pl15'
         elif 'Min_acc:' in line and 'Max_acc:' in line and current_line:
             min_acc_str = line.split('Min_acc:')[1].split(',')[0]
