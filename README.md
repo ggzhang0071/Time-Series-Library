@@ -181,6 +181,8 @@ Top_k=3用于插值、分类和异常检测任务, Top_k=5用于短期预测任�
 
 pl20 中  PatchTST 在 5000 都是 PatchTST 比较好了
 
+PatchTST dm 100 还是120，没有明显的区别
+
 
 
 

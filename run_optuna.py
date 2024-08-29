@@ -15,6 +15,19 @@ import optuna
 import time
 import json, re 
 
+import logging
+
+# Configure logging
+logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Example usage
+logging.debug('This is a debug message')
+logging.info('Informational message')
+logging.warning('Warning message')
+logging.error('Error message')
+logging.critical('Critical message')
+
+
 
 
 def update_args_(args, params):
@@ -144,6 +157,11 @@ def parse_args():
 
         ## opunta 参数
         parser.add_argument('--num_trial', type=int, default=2, help="optuna trial numbers")
+
+        ## save format
+        parser.add_argument('--save_format', type=str, default=2, help="save data format,npy or csv")
+
+        
         return parser.parse_args()
 
 def main(args):

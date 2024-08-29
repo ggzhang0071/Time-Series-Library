@@ -95,7 +95,7 @@ if __name__=="__main__":
 
 
     all_targets=["4500K1.0S",'5000K0.8S','5500K0.8S']
-    target=all_targets[1]
+    target=all_targets[2]
     if target in all_targets:
         choose_variable(root_path,data_path,all_targets,target)
     elif target=="merged":

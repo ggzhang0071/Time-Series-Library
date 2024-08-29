@@ -9,6 +9,7 @@ import os
 import time
 import warnings
 import numpy as np
+import pandas as pd
 from utils.dtw_metric import dtw,accelerated_dtw
 from utils.augmentation import run_augmentation,run_augmentation_single
 from utils.losses import mape_loss,mape1_loss,mase_loss, smape_loss, r2_loss
@@ -61,7 +62,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         total_loss = []
         self.model.eval()
         with torch.no_grad():
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark,_) in enumerate(vali_loader):
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark,_,_) in enumerate(vali_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float()
 
@@ -137,7 +138,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
             self.model.train()
             epoch_time = time.time()
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark,_) in enumerate(train_loader):     
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark,_,_) in enumerate(train_loader):     
                 iter_count += 1
                 model_optim.zero_grad()
                 batch_x = batch_x.float().to(self.device)
@@ -245,7 +246,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
         self.model.eval()
         with torch.no_grad():
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_original_y) in enumerate(test_loader):
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark, batch_original_y,batch_origial_stamp) in enumerate(test_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
 
@@ -273,9 +274,12 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 outputs = outputs[:, -self.args.pred_len:, :]
                 batch_y = batch_y[:, -self.args.pred_len:, :].to(self.device)
                 batch_original_y=batch_original_y[:, -self.args.pred_len:].unsqueeze(-1).to(self.device)
+                batch_origial_stamp=batch_origial_stamp[:, -self.args.pred_len:].unsqueeze(-1).to(self.device)
+          
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
                 batch_original_y=batch_original_y.detach().cpu().numpy()
+                batch_origial_stamp=batch_origial_stamp.detach().cpu().numpy()
                 if test_data.scale and self.args.inverse:
                     shape = outputs.shape
                     # 预处理outputs，使其适合inverse_transform方法
@@ -326,8 +330,8 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         input = input_transformed.reshape(shape)
                     
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
-                    pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-                    visual(gt, self.args.pred_len, pd, os.path.join(folder_path,  str(i) + '.pdf'))
+                    pd1 = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
+                    visual(gt, self.args.pred_len, pd1, os.path.join(folder_path,  str(i) + '.png'))
 
 
         if not preds:  
@@ -367,12 +371,16 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                
                 preds=reconstruct_series_from_preds(preds,batch_original_y)
                 trues=batch_original_y
+            
             mae, mse, rmse, mape, mspe, r2= metric(preds, trues)
             Min_acc,Max_acc=calculate_accuracy(preds[1:],trues[1:])
             print(f'mse:{mse}, rmse:{rmse[0]}, mae:{mae}, mape:{mape}, r2:{r2}, Min_acc:{Min_acc}, Max_acc:{Max_acc}, dtw:{dtw}')
 
             if Min_acc>(1/(self.args.pred_len-1))*1.5 and Max_acc>(1/(self.args.pred_len-1))*1.5:
-                visual_prediction(trues[-1], preds[-1],os.path.join(folder_path, f"pred_len_{self.args.pred_len}_minacc_{Min_acc}_maxacc_{Max_acc}.pdf"))
+                for  jj in range(trues.shape[0]):
+                    visual_prediction(trues[jj], preds[jj],os.path.join(folder_path, f"pred_len_{self.args.pred_len}_minacc_{Min_acc}_maxacc_{Max_acc}_{kk}.png"))
+
+                
                 if test_data.scale and self.args.inverse:
                     f = open("result_long_term_forecast_inverse.txt", 'a')
                 else:
@@ -384,9 +392,40 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 f.write('\n')
                 f.close()
 
-                np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
-                np.save(folder_path + 'pred.npy', preds)
-                np.save(folder_path + 'true.npy', trues)
+                #保存成 numpy 数据格式 或者csv 格式
+                if self.args.save_format=="npy":
+                    np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe,Min_acc,Max_acc]))
+                    np.save(folder_path + 'pred.npy', preds)
+                    np.save(folder_path + 'true.npy', trues)
+                    np.save(folder_path + 'time_stamp.npy',batch_origial_stamp)
+                elif self.args.save_format=="csv":
+                    metrics = {
+                        'mae': mae,
+                        'mse': mse,
+                        'rmse': rmse,
+                        'mape': mape,
+                        'mspe': mspe,
+                        'Min_acc': Min_acc,
+                        'Max_acc': Max_acc
+                    }
+                    df = pd.DataFrame([metrics])
+                    df.to_csv(folder_path + f"metrics_{self.args.target}_pred_len_{self.args.pred_len}.csv", index=False)
+                    preds_array = np.array(preds).squeeze()  # Squeeze to remove single-dimensional entries
+                    np.savetxt(folder_path + f"pred_{self.args.target}_pred_len_{self.args.pred_len}.csv", preds_array, delimiter=',', fmt='%d')
+
+                    trues_array = np.array(trues).squeeze()  # Squeeze to remove single-dimensional entries
+                    np.savetxt(folder_path + f"true_{self.args.target}_pred_len_{self.args.pred_len}.csv", trues_array, delimiter=',', fmt='%d')
+
+                    batch_origial_stamp_np = batch_origial_stamp.squeeze()  # Remove the last dimension, resulting in shape (99, 15)
+
+                    # Convert NumPy array to DataFrame
+                    batch_origial_stamp_pd = pd.DataFrame(batch_origial_stamp_np)
+                    batch_origial_stamp_pd = batch_origial_stamp_pd.apply(pd.to_datetime, unit='s')
+
+                    batch_origial_stamp_pd = batch_origial_stamp_pd.applymap(lambda x: x.strftime('%Y-%m-%d'))
+                    batch_origial_stamp_pd.to_csv(folder_path + f"time_stamp_{self.args.target}_pred_len_{self.args.pred_len}.csv", index=False, header=False)
+
+                    print(f"Timestamp, true values, and prediction values was saved to folder {folder_path}")
         return  
 
 

@@ -93,6 +93,7 @@ def visual_prediction(true, preds=None,  name='./pic/test.pdf'):
     """
     Results visualization
     """
+    
     plt.figure()
     plt.plot(true, label='GroundTruth', linewidth=2)
     if preds is not None:

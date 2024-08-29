@@ -188,3 +188,20 @@ class PatchEmbedding(nn.Module):
         # Input encoding
         x = self.value_embedding(x) + self.position_embedding(x)
         return self.dropout(x), n_vars
+
+
+if __name__=="__main__":
+    # 设置模型维度和示例序列长度
+    d_model = 512
+    seq_length = 3  # "Hello", "world", "!"
+
+    # 初始化位置编码模块
+    pos_encoder = PositionalEmbedding(d_model)
+
+    # 假设输入嵌入
+    input_embeddings = torch.randn(1, seq_length, d_model)  # Batch size x Seq length x Model dimension
+
+    # 应用位置编码
+    output = pos_encoder(input_embeddings)
+
+    print("Positionally Encoded Outputs:", output)

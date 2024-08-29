@@ -79,7 +79,7 @@ optuna_params_41() {
     export num_trial=100
     export pred_len=9
     export model="DLinear"
-}
+} 
 
 optuna_params_42() {
     export d_model=91
@@ -187,5 +187,55 @@ optuna_params_51() {
     export best_vali_loss=0.8199081420898438
     export num_trial=100
     export pred_len=15
+    export model="PatchTST"
+}
+
+optuna_params_52() {
+    export e_layers=4
+    export learning_rate=0.0051906702684410295
+    export batch_size=68
+    export data_path="early_variables_for_mine_price_4500K1.0S.csv"
+    export target="4500K1.0S"
+    export best_vali_loss=0.8472750782966614
+    export num_trial=100
+    export pred_len=20
+    export model="PatchTST"
+}
+
+optuna_params_53() {
+    export e_layers=3
+    export learning_rate=0.00636539274270603
+    export batch_size=64
+    export data_path="early_variables_for_mine_price_4500K1.0S.csv"
+    export target="4500K1.0S"
+    export best_vali_loss=0.7812607884407043
+    export num_trial=100
+    export pred_len=20
+    export model="PatchTST"
+}
+
+optuna_params_54() {
+    export e_layers=5
+    export learning_rate=0.0023764229677456054
+    export batch_size=69
+    export data_path="early_variables_for_mine_price_5000K0.8S.csv"
+    export target="5000K0.8S"
+    export best_vali_loss=0.7906928062438965
+    export num_trial=60
+    export pred_len=5
+    export model="PatchTST"
+}
+
+
+
+optuna_params_55() {
+    export e_layers=3
+    export learning_rate=0.7906928062438965
+    export batch_size=69
+    export data_path="early_variables_for_mine_price_5000K0.8S.csv"
+    export target="5000K0.8S"
+    export best_vali_loss=0.7906928062438965
+    export num_trial=60
+    export pred_len=20
     export model="PatchTST"
 }
