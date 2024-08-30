@@ -239,3 +239,26 @@ optuna_params_55() {
     export pred_len=20
     export model="PatchTST"
 }
+optuna_params_56() {
+    export e_layers=3
+    export learning_rate=0.009915613624835899
+    export batch_size=68
+    export data_path="early_variables_for_mine_price_5000K0.8S.csv"
+    export target="5000K0.8S"
+    export best_vali_loss=1.1062813997268677
+    export num_trial=100
+    export pred_len=20
+    export model="PatchTST"
+}
+
+optuna_params_57() {
+    export e_layers=3
+    export learning_rate=0.004780459442660464
+    export batch_size=67
+    export data_path="early_variables_for_mine_price_5000K0.8S.csv"
+    export target="5000K0.8S"
+    export best_vali_loss=0.9738560914993286
+    export num_trial=100
+    export pred_len=20
+    export model="PatchTST"
+}

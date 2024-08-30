@@ -277,8 +277,8 @@ class Dataset_Custom(Dataset):
        
         
         
-        num_train = int(len(df_raw) * 0.85)
-        num_test = int(len(df_raw) * 0.043)
+        num_train = int(len(df_raw) * 0.8)
+        num_test = int(len(df_raw) * 0.1)
         num_vali = len(df_raw) - num_train - num_test
         border1s = [0, num_train - self.seq_len, len(df_raw) - num_test - self.seq_len]
         border2s = [num_train, num_train + num_vali, len(df_raw)]
@@ -328,35 +328,7 @@ class Dataset_Custom(Dataset):
 
         self.data_stamp = data_stamp
 
-        index=0
-        s_begin = index 
-        s_end = s_begin + self.seq_len
-        r_begin = s_end - self.label_len
-        r_end = r_begin + self.label_len + self.pred_len
-
-        seq_x = self.data_x[s_begin:s_end]
-        seq_y = self.data_y[r_begin:r_end]
-
-
-        if self.target_preprocess=="diff" and self.flag=="test" and self.scale:
-            test_original_target=self.test_original_target.values[r_begin:r_end]
-            """#测试做差分之后的数据和原来的数据是不是相同的
-            y_shift=diff_batch(target_original)
-            print(y_shift[:5],self.scaler.inverse_transform(seq_y[:5])[:,-1])"""
-            original_stamp=self.original_stamp[r_begin:r_end]['date']
-            #print(original_stamp)
-            original_stamp = pd.to_datetime(original_stamp)
-            timestamps_int = original_stamp.astype('int64') // 10**9
-            original_stamp_unix = timestamps_int.to_numpy()
-        else:
-            test_original_target=np.zeros((r_end-r_begin,))
-            original_stamp_unix=np.zeros((r_end-r_begin,))
-            
-
-        seq_x_mark = self.data_stamp[s_begin:s_end]
-        seq_y_mark = self.data_stamp[r_begin:r_end]
-
-
+    
       
     def __getitem__(self, index):
         s_begin = index 

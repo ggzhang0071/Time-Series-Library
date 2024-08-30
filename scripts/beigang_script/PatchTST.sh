@@ -1,4 +1,4 @@
-export CUDA_VISIBLE_DEVICES=1
+export CUDA_VISIBLE_DEVICES=2
 
 
 # 导入参数
@@ -37,7 +37,7 @@ for d_model in 120;
 do 
   for pred_len in $pred_len;
    do 
-    python  -m pdb  run_optuna.py \
+    nohup python   run_optuna.py \
       --task_name $task_name \
       --is_training 1 \
       --root_path $root_path \
