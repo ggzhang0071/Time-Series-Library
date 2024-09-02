@@ -33,7 +33,7 @@ data_path="early_variables_for_mine_price_${target}.csv"
 
 seq_len=96
 
-for d_model in 120; 
+for d_model in 128; 
 do 
   for pred_len in $pred_len;
    do 

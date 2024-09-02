@@ -250,20 +250,10 @@ class Dataset_Custom(Dataset):
             for column in df_raw.columns:
                 if column != 'date':  # 排除不需要插值的时间戳列
                     df_raw[[column]] = imputer.fit_transform(df_raw[[column]])
-   
-        """if self.target_preprocess=="diff" and self.flag=="test" and self.scale:  
-            # 这里限制test是为了把 在train, val 中代码不出现不出现 高维信息， scale 做约束，是为了限制后续用不用inverse
-            y=df_raw[self.target]
-            #df_raw["target_original"]=y
-            # 这的diff 是来自于算法的0
-            y_diff=y.shift(-1)/y -1
-            df_raw[self.target]=y_diff
 
-            cols = list(df_raw.columns)
-            cols.remove(self.target)
-            cols.remove("target_original")
-            cols.remove('date')
-            df_raw = df_raw[['date'] + cols +[self.target]+["target_original"]]"""
+
+
+
         if self.target_preprocess=="diff":
             y=df_raw[self.target]
             y_diff=y.shift(-1)/y -1 
@@ -295,6 +285,7 @@ class Dataset_Custom(Dataset):
         self.scaler = StandardScaler()
         if self.scale:
             train_data = df_data[border1s[0]:border2s[0]]
+                    
             self.scaler.fit(train_data.values)
             data = self.scaler.transform(df_data.values)
         else:

@@ -45,7 +45,7 @@ seq_len=96
 for pred_len in  $pred_len 15
 do 
 # run_optuna.py  run.py  
-nohup python   run_optuna.py \
+ python -m pdb run_optuna.py \
   --task_name  $task_name \
   --is_training 1 \
   --root_path $root_path \
