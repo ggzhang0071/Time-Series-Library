@@ -262,3 +262,94 @@ optuna_params_57() {
     export pred_len=20
     export model="PatchTST"
 }
+
+
+optuna_params_58() {
+    export seq_len=107
+    export learning_rate=0.008519535712067818
+    export batch_size=87
+    export data_path="early_variables_for_mine_price_5000K0.8S.csv"
+    export target="5000K0.8S"
+    export best_vali_loss=1.0215210914611816
+    export num_trial=100
+    export pred_len=20
+    export model="DLinear"
+}
+
+optuna_params_59() {
+    export d_model=80
+    export e_layers=6
+    export learning_rate=0.005940592988430431
+    export batch_size=73
+    export data_path="early_variables_for_mine_price_5000K0.8S.csv"
+    export target="5000K0.8S"
+    export best_vali_loss=1.0374822616577148
+    export num_trial=100
+    export pred_len=20
+    export model="iTransformer"
+}
+
+optuna_params_60() {
+    export seq_len=137
+    export learning_rate=0.006110457034631447
+    export batch_size=78
+    export data_path="early_variables_for_mine_price_5000K0.8S.csv"
+    export target="5000K0.8S"
+    export best_vali_loss=1.0925967693328857
+    export num_trial=100
+    export pred_len=15
+    export model="DLinear"
+}
+
+optuna_params_61() {
+    export d_model=14
+    export e_layers=3
+    export learning_rate=0.0024515679073350287
+    export batch_size=70
+    export data_path="early_variables_for_mine_price_5000K0.8S.csv"
+    export target="5000K0.8S"
+    export best_vali_loss=0.9837453365325928
+    export num_trial=100
+    export pred_len=15
+    export model="iTransformer"
+}
+
+optuna_params_62() {
+    export d_model=76
+    export e_layers=5
+    export learning_rate=0.007040465444811926
+    export batch_size=75
+    export data_path="early_variables_for_mine_price_5000K0.8S.csv"
+    export target="5000K0.8S"
+    export best_vali_loss=0.9701333045959473
+    export num_trial=100
+    export pred_len=10
+    export model="iTransformer"
+}
+
+optuna_params_63() {
+    export d_model=44
+    export e_layers=4
+    export learning_rate=0.0076180813144990835
+    export batch_size=64
+    export data_path="early_variables_for_mine_price_5000K0.8S.csv"
+    export target="5000K0.8S"
+    export best_vali_loss=0.8030768632888794
+    export num_trial=100
+    export pred_len=5
+    export model="iTransformer"
+}
+
+optuna_params_64() {
+    export d_model=19
+    export e_layers=2
+    export learning_rate=0.0016913654089392787
+    export batch_size=107
+    export data_path="early_variables_for_mine_price_5000K0.8S.csv"
+    export target="5000K0.8S"
+    export best_vali_loss=1.078775405883789
+    export num_trial=100
+    export pred_len=20
+    export model="iTransformer"
+}
+
