@@ -70,7 +70,6 @@ do
       --config "$config_path" \
       --augmentation_ratio 1 \
       --num_trial $num_trial \
-      --save_format "csv"  \
-      --itr 1
+      --save_format "csv"  
   done
 done
