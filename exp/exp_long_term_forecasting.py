@@ -405,6 +405,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         'rmse': rmse,
                         'mape': mape,
                         'mspe': mspe,
+                        'r2':  r2,
                         'Min_acc': Min_acc,
                         'Max_acc': Max_acc
                     }

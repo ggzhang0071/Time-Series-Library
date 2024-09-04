@@ -37,7 +37,7 @@ for d_model in 128;
 do 
   for pred_len in $pred_len;
    do 
-    nohup python   run_optuna.py \
+     python -m pdb    run_optuna.py \
       --task_name $task_name \
       --is_training 1 \
       --root_path $root_path \

@@ -39,7 +39,7 @@ enc_in_choice=78
 task_name="long_term_forecast"
 
 #  5 7 9 11
-for pred_len in 20 15 10 5
+for pred_len in $pred_len
 do 
 # run_optuna.py  run.py  
 nohup python    run_optuna.py \

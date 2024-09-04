@@ -9513,3 +9513,12 @@ mse:6550.604929577465,  rmse:80.93580746231834, mae:59.09084507042254, mape:0.07
 iTransformer_long_term_forecast_beigang_96_20_5000K0.8S_custom_ftMS_sl96_ll48_pl20_dm12_nh8_el4_dl4_df512_expand2_dc4_fc3_ebtimeF_dtTrue_al1_Exp_0  
 mse:4228.357692307693,  rmse:65.02582327281749, mae:46.36846153846154, mape:0.06266341265763388, r2:0.3404524505357188, Min_acc:0.15625, Max_acc:0.328125, dtw:-999
 
+iTransformer_long_term_forecast_beigang_96_20_5000K0.8S_custom_ftMS_sl96_ll48_pl20_dm128_nh8_el2_dl4_df512_expand2_dc4_fc3_ebtimeF_dtTrue_al1_Exp_0  
+mse:4340.415887850468,  rmse:65.88183276025697, mae:46.38317757009346, mape:0.06203806936851742, r2:0.10710526132849729, Min_acc:0.1509433962264151, Max_acc:0.09433962264150944, dtw:-999
+
+iTransformer_long_term_forecast_beigang_96_5_5000K0.8S_custom_ftMS_sl96_ll48_pl5_dm128_nh8_el4_dl4_df512_expand2_dc4_fc3_ebtimeF_dtTrue_al1_Exp_0  
+mse:563.690625,  rmse:23.742169761839374, mae:13.871875, mape:0.017203588799686073, r2:0.847189184211147, Min_acc:0.38095238095238093, Max_acc:0.3968253968253968, dtw:-999
+
+DLinear_long_term_forecast_beigang_98_20_5500K0.8S_custom_ftMS_sl98_ll60_pl20_dm14_nh8_el5_dl4_df56_expand2_dc4_fc3_ebtimeF_dtTrue_al1_Exp_0  
+mse:6966.763483146067,  rmse:83.46714013997405, mae:58.907303370786515, mape:0.06904621946639185, r2:-0.07249516138053069, Min_acc:0.09090909090909091, Max_acc:0.13636363636363635, dtw:-999
+
