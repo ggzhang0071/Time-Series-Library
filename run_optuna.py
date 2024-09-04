@@ -1,5 +1,3 @@
-
-
 import argparse
 import os
 import torch
@@ -103,7 +101,7 @@ def parse_args():
         parser.add_argument('--down_sampling_window', type=int, default=1, help='down sampling window size')
         parser.add_argument('--down_sampling_method', type=str, default=None,
                             help='down sampling method, only support avg, max, conv')
-        parser.add_argument('--seg_len', type=int, default=48,
+        parser.add_argument('--seg_len', type=int, default=48, 
                             help='the length of segmen-wise iteration of SegRNN')
 
         # optimization
@@ -205,7 +203,7 @@ def main(args):
         return model"""
 
 
-        print('Args in experiment:')
+        print('Aargs in experiment:')
         print_args(args)
 
         if args.task_name == 'long_term_forecast':
@@ -230,7 +228,7 @@ def main(args):
 
 
                 print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-                model, vali_loss =exp.train(setting)
+                _, vali_loss =exp.train(setting)
                 
 
 
@@ -269,12 +267,12 @@ if __name__=="__main__":
     best_params['model']=args.model 
     print(f"The best parameter is: {best_params}")
 
-    print("Optuna best params: ", study.best_params)
+    print("Optuna best params: ", best_params)
     print("Optuna best value: ", study.best_value)  # 最优值
     print("Optuna runtime: ", optuna_time, "sec")
 
     # 检查文件是否存在并获取现有的 optuna_params 函数的数量
-    if args.num_trial >2:
+    if args.num_trial >=2:
         if os.path.exists(file_path):
             with open(file_path, 'r') as f:
                 content = f.read()

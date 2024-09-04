@@ -4,6 +4,7 @@ from layers.Transformer_EncDec import Encoder, EncoderLayer
 from layers.SelfAttention_Family import FullAttention, AttentionLayer
 from layers.Embed import PatchEmbedding
 
+
 class Transpose(nn.Module):
     def __init__(self, *dims, contiguous=False): 
         super().__init__()
@@ -52,7 +53,9 @@ class Model(nn.Module):
         self.encoder = Encoder(
             [
                 EncoderLayer(
-                    AttentionLayer(FullAttention(False, configs.factor, attention_dropout=configs.dropout,output_attention=configs.output_attention), configs.d_model, configs.n_heads),
+                    AttentionLayer(
+                        FullAttention(False, configs.factor, attention_dropout=configs.dropout,
+                                      output_attention=configs.output_attention), configs.d_model, configs.n_heads),
                     configs.d_model,
                     configs.d_ff,
                     dropout=configs.dropout,
