@@ -16,9 +16,9 @@ from sktime.datasets import load_from_tsfile_to_dataframe
 from utils.augmentation import run_augmentation_single
 from utils.tools import diff_batch
 from sklearn.impute import KNNImputer
+import pandas as pd 
 import warnings
 warnings.filterwarnings('ignore')
-
 
 
 class Dataset_ETT_hour(Dataset):
@@ -250,8 +250,6 @@ class Dataset_Custom(Dataset):
             for column in df_raw.columns:
                 if column != 'date':  # 排除不需要插值的时间戳列
                     df_raw[[column]] = imputer.fit_transform(df_raw[[column]])
-
-
 
 
         if self.target_preprocess=="diff":

@@ -8,7 +8,7 @@ from exp.exp_anomaly_detection import Exp_Anomaly_Detection
 from exp.exp_classification import Exp_Classification
 from utils.print_args import print_args
 import random
-import numpy as np
+import numpy as np 
 import optuna 
 import time
 import json, re 
@@ -46,7 +46,7 @@ def parse_args():
         # data loader
         parser.add_argument('--data', type=str, required=True, default='ETTm1', help='dataset type')
         parser.add_argument('--root_path', type=str, default='./data/ETT/', help='root path of the data file')
-        parser.add_argument('--data_path', type=str, default='ETTh1.csv', help='data file')
+        parser.add_argument('--data_path', type=str, default='ETTh1.csv', required=False, help='data file')
         parser.add_argument('--features', type=str, default='M',
                             help='forecasting task, options:[M, S, MS]; M:multivariate predict multivariate, S:univariate predict univariate, MS:multivariate predict univariate')
         parser.add_argument('--target_preprocess', type=str, default="",help='preprocess for target')
@@ -105,7 +105,7 @@ def parse_args():
                             help='the length of segmen-wise iteration of SegRNN')
 
         # optimization
-        parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
+        parser.add_argument('--num_workers', type=int, default=20, help='data loader num workers')
         parser.add_argument('--itr', type=int, default=1, help='experiments times')
         parser.add_argument('--train_epochs', type=int, default=10, help='train epochs')
         parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')

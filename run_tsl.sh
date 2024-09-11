@@ -14,7 +14,9 @@ rm runs/* -rf
 
 #bash  scripts/beigang_script/DLinear.sh  45  2>&1 | tee -a "${logfile}"
 
-bash  scripts/beigang_script/PatchTST.sh   2>&1 | tee -a "${logfile}"
+#bash  scripts/beigang_script/PatchTST.sh   2>&1 | tee -a "${logfile}"
+
+bash scripts/stock/PatchTST.sh 2>&1 | tee -a "${logfile}"
 
 
 

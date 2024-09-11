@@ -31,7 +31,7 @@ root_path="/git/Time-Series-Library/beigang_data"
 #data_path="runmin_an_factors_${target}.csv"
 data_path="early_variables_for_mine_price_${target}.csv"
 
-seq_len=96
+seq_len=96 
 
 for d_model in 128; 
 do 

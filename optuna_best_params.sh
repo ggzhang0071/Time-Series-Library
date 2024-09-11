@@ -353,3 +353,15 @@ optuna_params_64() {
     export model="iTransformer"
 }
 
+
+optuna_params_65() {
+    export e_layers=4
+    export learning_rate=0.0077775645989396425
+    export batch_size=66
+    export data_path="early_variables_for_mine_price_5000K0.8S.csv"
+    export target="5000K0.8S"
+    export best_vali_loss=1.0046721696853638
+    export num_trial=100
+    export pred_len=20
+    export model="PatchTST"
+}

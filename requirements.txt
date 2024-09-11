@@ -13,10 +13,15 @@ tqdm
 dataclasses
 optuna
 tensorboard  
-mamba-ssm
+pyarrow
+pip install mysqlclient
+#mamba-ssm
 # for jupyterlab 
 #notebook
 #jupyterlab
+
+
+# 最后安装 mamba-ssm
 
 
 
