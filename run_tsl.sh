@@ -16,7 +16,7 @@ rm runs/* -rf
 
 #bash  scripts/beigang_script/PatchTST.sh   2>&1 | tee -a "${logfile}"
 
-bash scripts/stock/PatchTST.sh 2>&1 | tee -a "${logfile}"
+bash scripts/stock/PatchTST.sh    2>&1 | tee -a "${logfile}"
 
 
 

@@ -1,6 +1,6 @@
 from data_provider.data_loader import Dataset_ETT_hour, Dataset_ETT_minute, Dataset_Custom, Dataset_M4, PSMSegLoader, \
     MSLSegLoader, SMAPSegLoader, SMDSegLoader, SWATSegLoader, UEAloader
-from data_provider.ParquetDataset import ParquetDataset
+from data_provider.StockDataset import ParquetDataset
 
 
 from data_provider.uea import collate_fn
@@ -21,6 +21,7 @@ data_dict = {
     'UEA': UEAloader,
     'stock':ParquetDataset
 }
+
 
 
 def data_provider(args, flag):

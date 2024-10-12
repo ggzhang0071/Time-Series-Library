@@ -14,14 +14,13 @@ dataclasses
 optuna
 tensorboard  
 pyarrow
-pip install mysqlclient
-#mamba-ssm
+packaging
+mamba-ssm
 # for jupyterlab 
 #notebook
 #jupyterlab
 
 
-# 最后安装 mamba-ssm
 
 
 

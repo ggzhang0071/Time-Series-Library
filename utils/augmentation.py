@@ -347,6 +347,7 @@ def run_augmentation(x, y, args):
         augmentation_tags = args.extra_tag
     return x_aug, y_aug, augmentation_tags
 
+
 def run_augmentation_single(x, y, args):
     # print("Augmenting %s"%args.data)
     np.random.seed(args.seed)
